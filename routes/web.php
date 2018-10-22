@@ -11,6 +11,13 @@
 |
 */
 
+use Carbon\Carbon;
+use App\Models\Book;
+
 Route::get('/', function () {
-    return view('welcome');
+    $data = factory(Book::class, 10)->make();
+
+    App\Models\Book::insert($data->toArray());
+
+    dd($data);
 });

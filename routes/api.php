@@ -24,3 +24,9 @@ Route::group([
     Route::post('logout', 'AuthController@logout')->middleware('auth');
     Route::get('info', 'AuthController@info')->middleware('auth');
 });
+
+Route::group([
+    'middleware' => 'auth',
+], function () {
+    Route::resource('books', 'BookController');
+});
