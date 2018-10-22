@@ -11,13 +11,7 @@
 |
 */
 
-use Carbon\Carbon;
-use App\Models\Book;
-
-Route::get('/', function () {
-    $data = factory(Book::class, 10)->make();
-
-    App\Models\Book::insert($data->toArray());
-
-    dd($data);
-});
+if (config('app.debug')) {
+    Route::any('/test', 'TestController@test');
+    Route::any('/{path?}/test', 'TestController@test')->where('path', '.*');
+}
