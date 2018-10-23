@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
+
 class BookResource extends JsonResource
 {
     /**
@@ -16,7 +18,7 @@ class BookResource extends JsonResource
         return [
             'id'         => $this->id,
             'title'      => $this->title,
-            'started_at' => $this->started_at,
+            'started_at' => Carbon::parse($this->started_at)->format('Y-m-d'),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'deleted_at' => $this->deleted_at,
