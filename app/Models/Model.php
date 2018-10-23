@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Filters\BookFilter;
+use App\Filters\Filter;
 use Illuminate\Database\Eloquent\Builder;
 
 class Model extends \Illuminate\Database\Eloquent\Model
@@ -21,7 +21,7 @@ class Model extends \Illuminate\Database\Eloquent\Model
         });
     }
 
-    public function scopeFilter(Builder $query, BookFilter $filter)
+    public function scopeFilter(Builder $query, Filter $filter)
     {
         return $filter->apply($query);
     }
