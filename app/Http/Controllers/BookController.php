@@ -12,11 +12,9 @@ class BookController extends Controller
 {
     public function index(Request $request)
     {
-        $books = Book::getBooks($request);
+        $books = Book::getBooks();
 
-        $res = BookResource::collection($books);
-
-        return $res;
+        return BookResource::collection($books);
     }
 
     public function store(BookRequest $request)

@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
+use App\Filters\BookFilter;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Http\Request;
 
 class Book extends Model
 {
@@ -16,19 +16,10 @@ class Book extends Model
 
     protected $fillable = ['title', 'total', 'read', 'started_at', 'cover'];
 
-    public static function getBooks(Request $request)
+    public static function getBooks()
     {
-        $query = static::where('hidden', false)->orderBy('updated_at', 'desc');
-
-        if ($veryRecent = $request->get('recent')) {
-            $query = $query->limit(self::VERY_RECENT_COUNT);
-        }
-
-        if ($request->get('edit_mode')) {
-            $query->withTrashed();
-        }
-
-        return $query->get();
+        return static::orderBy('updated_at', 'desc')
+                     ->filter(app(BookFilter::class))->get();
     }
 
     public static function addBook($data)
