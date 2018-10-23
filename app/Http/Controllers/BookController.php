@@ -12,7 +12,7 @@ class BookController extends Controller
 {
     public function index(Request $request)
     {
-        $books = Book::getVisibleBooks($request);
+        $books = Book::getBooks($request);
 
         $res = BookResource::collection($books);
 
@@ -62,7 +62,7 @@ class BookController extends Controller
             $md5 = md5_file($file);
             $ext = $file->getClientOriginalExtension();
 
-            $filename = $md5 . ($ext ? ".{$ext}" : '');
+            $filename = $md5.($ext ? ".{$ext}" : '');
 
             $path = $driver->putFileAs('uploads', $file, $filename);
 

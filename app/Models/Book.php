@@ -16,7 +16,7 @@ class Book extends Model
 
     protected $fillable = ['title', 'total', 'read', 'started_at', 'cover'];
 
-    public static function getVisibleBooks(Request $request)
+    public static function getBooks(Request $request)
     {
         $query = static::where('hidden', false)->orderBy('updated_at', 'desc');
 
