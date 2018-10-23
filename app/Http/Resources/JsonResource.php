@@ -12,13 +12,25 @@ class JsonResource extends R
      * 这里的字段会排除显示
      * @var array
      */
-    protected $except = null;
+    protected $except = [
+        'hidden',
+        'deleted_at',
+    ];
 
     /**
      * 这里的字段会显示，优先级比 except 高
      * @var array
      */
     protected $only = null;
+
+    public function __construct($resource)
+    {
+        parent::__construct($resource);
+
+        if (request('edit_mode')) {
+            $this->except = null;
+        }
+    }
 
     /**
      * 排除 $keys 中的字段

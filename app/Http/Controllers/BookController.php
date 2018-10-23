@@ -12,9 +12,11 @@ class BookController extends Controller
 {
     public function index(Request $request)
     {
-        $books = Book::getVisibleBooks();
+        $books = Book::getVisibleBooks($request);
 
-        return BookResource::collection($books)->except(['deleted_at', 'hidden']);
+        $res = BookResource::collection($books);
+
+        return $res;
     }
 
     public function store(BookRequest $request)
