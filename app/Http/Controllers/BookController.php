@@ -69,4 +69,9 @@ class BookController extends Controller
 
         return $files;
     }
+
+    public function show(Request $request, Book $book)
+    {
+        return BookResource::make($book);
+    }
 }
