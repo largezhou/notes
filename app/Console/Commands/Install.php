@@ -43,19 +43,19 @@ class Install extends Command
         if ($user) {
             $this->info('largezhou 已存在');
 
-            return;
+            return -1;
         }
 
         do {
             $pw = $this->secret('设置密码 [000000]：') ?: '000000';
             $pwConfirmation = $this->secret('再次输入密码 [000000]：') ?: '000000';
 
-            $this->info($pw);
-
             if ($pw !== $pwConfirmation) {
                 $this->error('两次密码不一致');
             }
         } while ($pw !== $pwConfirmation);
+
+        $this->info($pw);
 
         User::create([
             'username' => 'largezhou',
