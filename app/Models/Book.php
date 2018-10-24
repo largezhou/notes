@@ -3,11 +3,13 @@
 namespace App\Models;
 
 use App\Filters\BookFilter;
+use App\Traits\CanHide;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Book extends Model
 {
     use SoftDeletes;
+    use CanHide;
 
     /**
      * 书籍挂件的书籍数量

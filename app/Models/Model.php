@@ -21,16 +21,24 @@ class Model extends \Illuminate\Database\Eloquent\Model
         });
     }
 
+    /**
+     * 编辑模式
+     *
+     * @param Builder $query
+     */
     public function scopeEditMode(Builder $query)
     {
-        $query->withTrashed()->withHidden();
+        $query->withTrashed();
     }
 
-    public function scopeWithHidden(Builder $query)
-    {
-        $query->withoutGlobalScope('onlyShown');
-    }
-
+    /**
+     * 应用过滤器
+     *
+     * @param Builder $query
+     * @param Filter  $filter
+     *
+     * @return mixed
+     */
     public function scopeFilter(Builder $query, Filter $filter)
     {
         return $filter->apply($query);
