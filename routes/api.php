@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -13,10 +11,6 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
 Route::group([
     'prefix' => 'auth',
 ], function () {
@@ -25,8 +19,5 @@ Route::group([
     Route::get('info', 'AuthController@info')->middleware('auth');
 });
 
-Route::group([
-    'middleware' => 'auth',
-], function () {
-    Route::resource('books', 'BookController');
-});
+Route::delete('deleted-books/{id}', 'BookController@forceDestroy');
+Route::resource('books', 'BookController');

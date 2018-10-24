@@ -56,11 +56,12 @@ abstract class Filter
 
     /**
      * 编辑模式过滤器，显示软删除和隐藏的
-     *
-     * @param $editMode
      */
-    protected function editMode($editMode)
+    protected function editMode()
     {
-        $this->builder = $this->builder->withTrashed()->withoutGlobalScope('onlyShown');
+        // 只有在登录的情况下，才能启用编辑模式
+        if (auth()->check()) {
+            $this->builder = $this->builder->withTrashed()->withoutGlobalScope('onlyShown');
+        }
     }
 }

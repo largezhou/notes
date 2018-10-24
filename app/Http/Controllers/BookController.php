@@ -5,12 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\BookRequest;
 use App\Http\Resources\BookResource;
 use App\Models\Book;
-use Illuminate\Http\Request;
-use Illuminate\Http\UploadedFile;
 
 class BookController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
         $books = Book::getBooks();
 
@@ -28,62 +26,22 @@ class BookController extends Controller
         return $this->created(['id' => $book->id]);
     }
 
-    /**
-     * 返回 201已创建 响应
-     *
-     * @param null $data
-     *
-     * @return \Symfony\Component\HttpFoundation\Response;
-     */
-    protected function created($data = null)
-    {
-        if (is_null($data)) {
-            return response(null, 201);
-        } else {
-            return response()->json($data)->setStatusCode(201);
-        }
-    }
-
-    /**
-     * 保存文件到本地，并返回 键 => 保存路径 的键值对
-     *
-     * @param Request $request
-     *
-     * @return array
-     */
-    protected function handleUploadFile(Request $request)
-    {
-        $files = $request->file();
-        $driver = \Storage::drive('public');
-
-        $files = array_map(function (UploadedFile $file) use ($driver) {
-            $md5 = md5_file($file);
-            $ext = $file->getClientOriginalExtension();
-
-            $filename = $md5.($ext ? ".{$ext}" : '');
-
-            $path = $driver->putFileAs('uploads', $file, $filename);
-
-            return $driver->url($path);
-        }, $files);
-
-        return $files;
-    }
-
-    public function show(Request $request, Book $book)
+    public function show(Book $book)
     {
         return BookResource::make($book);
     }
 
-    public function destroy(Request $request, Book $book)
+    public function destroy(Book $book)
     {
         $book->delete();
 
-        return $this->deleted();
+        return $this->noContent();
     }
 
-    protected function deleted()
+    public function forceDestroy($id)
     {
-        return response(null, 204);
+        Book::editMode()->findOrFail($id)->forceDelete();
+
+        return $this->noContent();
     }
 }

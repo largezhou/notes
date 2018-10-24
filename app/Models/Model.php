@@ -21,6 +21,16 @@ class Model extends \Illuminate\Database\Eloquent\Model
         });
     }
 
+    public function scopeEditMode(Builder $query)
+    {
+        $query->withTrashed()->withHidden();
+    }
+
+    public function scopeWithHidden(Builder $query)
+    {
+        $query->withoutGlobalScope('onlyShown');
+    }
+
     public function scopeFilter(Builder $query, Filter $filter)
     {
         return $filter->apply($query);

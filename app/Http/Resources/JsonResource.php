@@ -27,7 +27,8 @@ class JsonResource extends R
     {
         parent::__construct($resource);
 
-        if (request()->has('edit_mode')) {
+        // 只有在登录的情况下才能启用编辑模式
+        if (request()->has('edit_mode') && auth()->check()) {
             $this->except = null;
         }
     }
