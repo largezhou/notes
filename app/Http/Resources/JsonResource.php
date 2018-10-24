@@ -27,7 +27,7 @@ class JsonResource extends R
     {
         parent::__construct($resource);
 
-        if (request('edit_mode')) {
+        if (request()->has('edit_mode')) {
             $this->except = null;
         }
     }

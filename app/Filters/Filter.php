@@ -61,8 +61,6 @@ abstract class Filter
      */
     protected function editMode($editMode)
     {
-        if ($editMode) {
-            $this->builder = $this->builder->withTrashed()->withoutGlobalScope('onlyShown');
-        }
+        $this->builder = $this->builder->withTrashed()->withoutGlobalScope('onlyShown');
     }
 }
