@@ -74,4 +74,16 @@ class BookController extends Controller
     {
         return BookResource::make($book);
     }
+
+    public function destroy(Request $request, Book $book)
+    {
+        $book->delete();
+
+        return $this->deleted();
+    }
+
+    protected function deleted()
+    {
+        return response(null, 204);
+    }
 }
