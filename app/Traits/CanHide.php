@@ -25,6 +25,7 @@ trait CanHide
      */
     public function scopeEditMode(Builder $query)
     {
-        $query->withTrashed()->withHidden();
+        parent::scopeEditMode($query);
+        $query->withHidden();
     }
 }
