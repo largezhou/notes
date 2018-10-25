@@ -28,7 +28,6 @@ $factory->define(App\Models\Book::class, function (Faker $faker) {
     $createdAt = Carbon::instance($faker->dateTimeBetween('-2 months'));
     $startedAt = Carbon::instance($createdAt)->addDays(mt_rand(-30, 0));
     $updatedAt = Carbon::instance($createdAt)->addDays(mt_rand(1, 30));
-    $deletedAt = Carbon::instance($updatedAt)->addDays(10, 20);
 
     $total = mt_rand(200, 900);
     $read = mt_rand(0, $total);
