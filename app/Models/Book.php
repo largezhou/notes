@@ -16,18 +16,17 @@ class Book extends Model
      */
     const VERY_RECENT_COUNT = 5;
 
-    protected $fillable = ['title', 'total', 'read', 'started_at', 'cover'];
+    protected $fillable = ['title', 'total', 'read', 'started_at', 'cover', 'hidden'];
 
     public static function getBooks()
     {
         return static::orderBy('updated_at', 'desc')
-                     ->filter(app(BookFilter::class))->get();
+            ->filter(app(BookFilter::class))->get();
     }
 
     public static function addBook($data)
     {
         $data['hidden'] = false;
-        static::unguard();
 
         return static::create($data);
     }

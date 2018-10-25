@@ -12,15 +12,6 @@ class Model extends \Illuminate\Database\Eloquent\Model
         'updated_at' => 'string',
     ];
 
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::addGlobalScope('onlyShown', function (Builder $builder) {
-            $builder->where('hidden', false);
-        });
-    }
-
     /**
      * 编辑模式
      *

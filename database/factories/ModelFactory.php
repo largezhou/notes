@@ -41,7 +41,7 @@ $factory->define(App\Models\Book::class, function (Faker $faker) {
         'read'       => $read,
         'total'      => $total,
         'cover'      => '',
-        'deleted_at' => mt_rand(1, 10) > 8 ? $deletedAt : null,
-        'hidden'     => mt_rand(1, 10) > 8 ? 1 : 0,
+        'deleted_at' => null,
+        'hidden'     => false,
     ];
 });
