@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Filters\Filter;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Model extends \Illuminate\Database\Eloquent\Model
 {
@@ -33,5 +34,18 @@ class Model extends \Illuminate\Database\Eloquent\Model
     public function scopeFilter(Builder $query, Filter $filter)
     {
         return $filter->apply($query);
+    }
+
+    public function update(array $attributes = [], array $options = [])
+    {
+        if (
+            array_has($attributes, 'deleted_at') &&
+            $attributes['deleted_at'] === null &&
+            trait_exists(SoftDeletes::class)
+        ) {
+            return $this->restore();
+        }
+
+        return parent::update(...func_get_args());
     }
 }

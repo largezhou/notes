@@ -44,4 +44,12 @@ class BookController extends Controller
 
         return $this->noContent();
     }
+
+    public function update(BookRequest $request, $id)
+    {
+        $book = Book::editMode()->findOrFail($id);
+        $book->update($request->all());
+
+        return BookResource::make($book);
+    }
 }

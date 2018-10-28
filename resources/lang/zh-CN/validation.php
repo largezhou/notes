@@ -29,7 +29,7 @@ return [
         'string'  => ':attribute只能这么长：:min - :max',
         'array'   => 'The :attribute must have between :min and :max items.',
     ],
-    'boolean'              => 'The :attribute field must be true or false.',
+    'boolean'              => ':attribute只能是是还是不是',
     'confirmed'            => 'The :attribute confirmation does not match.',
     'date'                 => ':attribute格式不对呀',
     'date_format'          => 'The :attribute does not match the format :format.',
@@ -41,7 +41,7 @@ return [
     'email'                => 'The :attribute must be a valid email address.',
     'exists'               => 'The selected :attribute is invalid.',
     'file'                 => 'The :attribute must be a file.',
-    'filled'               => 'The :attribute field must have a value.',
+    'filled'               => ':attribute不填就不要写哦',
     'gt'                   => [
         'numeric' => 'The :attribute must be greater than :value.',
         'file'    => 'The :attribute must be greater than :value kilobytes.',
