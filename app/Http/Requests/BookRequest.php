@@ -2,27 +2,82 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Book;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 
 class BookRequest extends FormRequest
 {
+    /**
+     * @var Book
+     */
+    protected $book;
+    protected $hasRead;
+    protected $hasTotal;
+
+    public function getBook()
+    {
+        if (!$this->book) {
+            $this->book = Book::editMode()->findOrFail($this->route('book'));
+        }
+
+        return $this->book;
+    }
+
+    public function validationData()
+    {
+        $this->handleHasReadOrTotal();
+
+        return parent::validationData();
+    }
+
+    /**
+     * 处理更新的字段中，read 和 total 有且只有其一的情况
+     */
+    protected function handleHasReadOrTotal()
+    {
+        $this->hasRead = $this->has('read');
+        $this->hasTotal = $this->has('total');
+
+        $book = $this->getBook();
+
+        if ($this->hasRead && !$this->hasTotal) {
+            $this->request->set('total', (string) $book->total);
+        }
+
+        if ($this->hasTotal && !$this->hasRead) {
+            $this->request->set('read', (string) $book->read);
+        }
+    }
+
     public function rules()
     {
         $rules = [
             'title'      => 'bail|required|string|max:255',
             'total'      => 'bail|required|integer|between:1,10000',
-            'read'       => 'bail|nullable|integer|min:0|lte:total',
             'started_at' => 'bail|nullable|date',
             'cover'      => 'bail|required|image',
             'hidden'     => 'filled|boolean',
         ];
 
+        // 避免 total 没有验证成功时，验证 read 的 lte 规则，会报错的问题
+        $total = $this->get('total');
+        if (isset($total) && is_numeric($total)) {
+            $rules['read'] = 'bail|required|integer|min:0|lte:total';
+        }
+
+        if ($this->hasTotal && !$this->hasRead) {
+            $rules['total'] = 'bail|required|integer|between:1,10000|gte:read';
+        }
+
         switch ($this->method()) {
             case 'PUT':
-                return array_only($rules, $this->keys());
+                $rules = array_only($rules, $this->keys());
             default:
-                return $rules;
+                // null
         }
+
+        return $rules;
     }
 
     public function attributes()
@@ -42,5 +97,35 @@ class BookRequest extends FormRequest
         return [
             'cover.required' => ':attribute要传的',
         ];
+    }
+
+    protected function failedValidation(Validator $validator)
+    {
+        $validator = $this->newValidatorIfTotalHasFailed($validator);
+
+        parent::failedValidation($validator);
+    }
+
+    /**
+     * 处理 total 验证没通过时，read 的 lte 验证错误信息有点问题的问题
+     *
+     * @param Validator $validator
+     *
+     * @return Validator|\Illuminate\Validation\Validator
+     */
+    protected function newValidatorIfTotalHasFailed(Validator $validator)
+    {
+        if ($validator->getMessageBag()->hasAny('total')) {
+            $oldErrors = $validator->getMessageBag()->getMessages();
+            unset($oldErrors['read']);
+
+            $validator = \Validator::make([], []);
+
+            foreach ($oldErrors as $key => $errors) {
+                $validator->getMessageBag()->add($key, ...$errors);
+            }
+        }
+
+        return $validator;
     }
 }

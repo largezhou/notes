@@ -47,7 +47,7 @@ class BookController extends Controller
 
     public function update(BookRequest $request, $id)
     {
-        $book = Book::editMode()->findOrFail($id);
+        $book = $request->getBook();
         $book->update($request->all());
 
         return BookResource::make($book);

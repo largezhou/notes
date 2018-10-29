@@ -24,7 +24,7 @@ return [
     'before'               => 'The :attribute must be a date before :date.',
     'before_or_equal'      => 'The :attribute must be a date before or equal to :date.',
     'between'              => [
-        'numeric' => 'The :attribute must be between :min and :max.',
+        'numeric' => ':attribute要在:min和:max之间',
         'file'    => 'The :attribute must be between :min and :max kilobytes.',
         'string'  => ':attribute只能这么长：:min - :max',
         'array'   => 'The :attribute must have between :min and :max items.',
@@ -49,7 +49,7 @@ return [
         'array'   => 'The :attribute must have more than :value items.',
     ],
     'gte'                  => [
-        'numeric' => 'The :attribute must be greater than or equal :value.',
+        'numeric' => ':attribute不能小于:value',
         'file'    => 'The :attribute must be greater than or equal :value kilobytes.',
         'string'  => 'The :attribute must be greater than or equal :value characters.',
         'array'   => 'The :attribute must have :value items or more.',
@@ -57,7 +57,7 @@ return [
     'image'                => ':attribute不是图片不行的',
     'in'                   => 'The selected :attribute is invalid.',
     'in_array'             => 'The :attribute field does not exist in :other.',
-    'integer'              => 'The :attribute must be an integer.',
+    'integer'              => ':attribute要一个整数',
     'ip'                   => 'The :attribute must be a valid IP address.',
     'ipv4'                 => 'The :attribute must be a valid IPv4 address.',
     'ipv6'                 => 'The :attribute must be a valid IPv6 address.',
