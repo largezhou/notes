@@ -30,4 +30,9 @@ class Book extends Model
 
         return static::create($data);
     }
+
+    public function notes()
+    {
+        return $this->hasMany(Note::class);
+    }
 }

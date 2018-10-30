@@ -25,22 +25,33 @@ $factory->define(App\Models\User::class, function (Faker $faker) {
 });
 
 $factory->define(App\Models\Book::class, function (Faker $faker) {
-    $createdAt = Carbon::instance($faker->dateTimeBetween('-2 months'));
-    $startedAt = Carbon::instance($createdAt)->addDays(mt_rand(-30, 0));
-    $updatedAt = Carbon::instance($createdAt)->addDays(mt_rand(1, 30));
-
     $total = mt_rand(200, 900);
     $read = mt_rand(0, $total);
 
     return [
         'title'      => $faker->sentence,
-        'started_at' => $startedAt,
-        'created_at' => $createdAt,
-        'updated_at' => $updatedAt,
+        'started_at' => $faker->dateTimeBetween('-2 months'),
+        'created_at' => $faker->dateTimeBetween('-2 months'),
+        'updated_at' => $faker->dateTimeBetween('-2 months'),
         'read'       => $read,
         'total'      => $total,
         'cover'      => '',
         'deleted_at' => null,
         'hidden'     => false,
+    ];
+});
+
+$factory->define(App\Models\Note::class, function (Faker $faker) {
+    return [
+        'book_id'      => mt_rand(1, 1000),
+        'title'        => $faker->sentence,
+        'desc'         => $faker->sentence,
+        'content'      => $faker->paragraph(10),
+        'html_content' => '<h1>HTML_CONTENT</h1>'.$faker->paragraph(10),
+        'page'         => mt_rand(1, 1000),
+        'created_at'   => $faker->dateTimeBetween('-2 months'),
+        'updated_at'   => $faker->dateTimeBetween('-2 months'),
+        'deleted_at'   => null,
+        'hidden'       => false,
     ];
 });
