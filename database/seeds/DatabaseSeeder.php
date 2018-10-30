@@ -22,9 +22,12 @@ class BookTableSeeder extends Seeder
     public function run()
     {
         Book::truncate();
+        Note::truncate();
         factory(Book::class, 10)->create()->each(function (Book $book) {
             $notes_count = mt_rand(1, 10);
-            $notesData = factory(Note::class, $notes_count)->make();
+            $notesData = factory(Note::class, $notes_count)->make()->each(function (Note $note) use ($book) {
+                $note->page = mt_rand(1, $book->read);
+            });
 
             $book->notes()->saveMany($notesData);
         });
