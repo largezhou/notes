@@ -19,5 +19,5 @@ Route::group([
     Route::get('info', 'AuthController@info')->middleware('auth');
 });
 
-Route::delete('deleted-books/{id}', 'BookController@forceDestroy');
+Route::delete('deleted-books/{id}', 'BookController@forceDestroy')->name('book.force_destroy');
 Route::resource('books', 'BookController');

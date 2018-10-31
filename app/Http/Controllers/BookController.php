@@ -40,7 +40,7 @@ class BookController extends Controller
 
     public function forceDestroy($id)
     {
-        Book::editMode()->findOrFail($id)->forceDelete();
+        Book::onlyTrashed()->findOrFail($id)->forceDelete();
 
         return $this->noContent();
     }

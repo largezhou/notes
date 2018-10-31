@@ -127,4 +127,32 @@ class BookTest extends TestCase
 
         $this->assertDatabaseHas((new Book())->getTable(), ['id' => 2, 'deleted_at' => Carbon::now()]);
     }
+
+    protected function forceDestroyBook($id = null)
+    {
+        return $this->json('delete', route('book.force_destroy', ['id' => $id ?: 1]));
+    }
+
+    public function testForceDestroyBook()
+    {
+        $this->prepareData();
+        $this->forceDestroyBook()
+            ->assertStatus(401);
+    }
+
+    public function testAuthForceDestroyBook()
+    {
+        $this->login();
+
+        $this->prepareData();
+
+        $this->forceDestroyBook(1)
+            ->assertStatus(204);
+
+        $this->assertDatabaseMissing((new Book())->getTable(), ['id' => 1]);
+
+        // 没有被软删除的不能彻底删除
+        $this->forceDestroyBook(2)
+            ->assertStatus(404);
+    }
 }
