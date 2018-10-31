@@ -17,6 +17,10 @@ class BookRequest extends FormRequest
 
     public function getBook()
     {
+        if ($this->isMethod('post')) {
+            return null;
+        }
+
         if (!$this->book) {
             $this->book = Book::editMode()->findOrFail($this->route('book'));
         }

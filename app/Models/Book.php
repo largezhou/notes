@@ -11,6 +11,12 @@ class Book extends Model
     use SoftDeletes;
     use CanHide;
 
+    protected $casts = [
+        'created_at' => 'string',
+        'updated_at' => 'string',
+        'started_at' => 'datetime:Y-m-d',
+    ];
+
     /**
      * 书籍挂件的书籍数量
      */
