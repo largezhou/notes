@@ -8,24 +8,15 @@ trait CanHide
 {
     public static function bootCanHide()
     {
-        static::addGlobalScope('onlyShown', function (Builder $builder) {
-            $builder->where('hidden', false);
-        });
+        if (auth()->guest()) {
+            static::addGlobalScope('onlyShown', function (Builder $builder) {
+                $builder->where('hidden', false);
+            });
+        }
     }
 
     public function scopeWithHidden(Builder $query)
     {
         $query->withoutGlobalScope('onlyShown');
-    }
-
-    /**
-     * CanHide 模型启用编辑模式，需要显示隐藏的记录
-     *
-     * @param Builder $query
-     */
-    public function scopeEditMode(Builder $query)
-    {
-        parent::scopeEditMode($query);
-        $query->withHidden();
     }
 }

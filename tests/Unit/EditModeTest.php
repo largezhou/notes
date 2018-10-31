@@ -16,15 +16,14 @@ class EditModeTest extends TestCase
     {
         create(Book::class, [], 10);
         Book::find(1)->delete();
-        Book::find(2)->update(['hidden' => true]);
     }
 
     public function testNotInEditMode()
     {
         $this->prepareData();
 
-        // 非编辑模式下，看不到 隐藏 和 软删除 的
-        $this->assertEquals(8, Book::all()->count());
+        // 非编辑模式下，看不到 软删除 的
+        $this->assertEquals(9, Book::all()->count());
     }
 
     public function testInEditMode()

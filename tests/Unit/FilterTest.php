@@ -20,7 +20,6 @@ class FilterTest extends TestCase
     {
         create(Book::class, [], 10);
         Book::unguard();
-        Book::find(1)->update(['hidden' => true]);
         Book::find(2)->update(['deleted_at' => Carbon::now()]);
 
         mock_request(['only' => ['edit_mode' => null]]);
@@ -28,7 +27,7 @@ class FilterTest extends TestCase
         $books = Book::filter(app(BookFilter::class))->get();
 
         // 未登录就算请求中有edit_mode字段，也不能看到隐藏和软删除的
-        $this->assertEquals(8, $books->count());
+        $this->assertEquals(9, $books->count());
 
         $user = create(User::class);
         $this->actingAs($user);

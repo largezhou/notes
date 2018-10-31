@@ -12,26 +12,13 @@ class JsonResource extends R
      * 这里的字段会排除显示
      * @var array
      */
-    protected $except = [
-        'hidden',
-        'deleted_at',
-    ];
+    protected $except = null;
 
     /**
      * 这里的字段会显示，优先级比 except 高
      * @var array
      */
     protected $only = null;
-
-    public function __construct($resource)
-    {
-        parent::__construct($resource);
-
-        // 只有在登录的情况下才能启用编辑模式
-        if (request()->has('edit_mode') && auth()->check()) {
-            $this->except = null;
-        }
-    }
 
     /**
      * 排除 $keys 中的字段
@@ -78,15 +65,19 @@ class JsonResource extends R
      */
     protected function filterKeys($data)
     {
+        $collect = collect($data);
+
         if (is_array($this->only)) {
-            return collect($data)->only($this->only)->toArray();
+            $collect = $collect->only($this->only);
+        } elseif (is_array($this->except)) {
+            $collect = $collect->forget($this->except);
         }
 
-        if (is_array($this->except)) {
-            return collect($data)->forget($this->except)->toArray();
+        if (auth()->guest()) {
+            $collect->forget(['hidden', 'deleted_at']);
         }
 
-        return $data;
+        return $collect->toArray();
     }
 
     public static function collection($resource)

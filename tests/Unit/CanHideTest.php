@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Models\Book;
+use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -20,15 +21,28 @@ class CanHideTest extends TestCase
         $this->assertEquals(10, $books->count());
     }
 
-    public function testGlobalScopeOnlyShown()
+    public function testGlobalScopeOnlyShownInGuest()
     {
-        create(Book::class, [], 10);
-        Book::find(1)->update(['hidden' => true]);
+        $this->initHiddenItems();
 
         $books = Book::all();
         $this->assertEquals(9, $books->count());
+    }
 
-        $books = Book::withoutGlobalScope('onlyShown')->get();
+    protected function initHiddenItems()
+    {
+        create(Book::class, [], 10);
+        Book::find(1)->update(['hidden' => true]);
+    }
+
+    public function testLoginedCanSeeHiddenItems()
+    {
+        $user = create(User::class);
+        $this->actingAs($user);
+
+        $this->initHiddenItems();
+
+        $books = Book::all();
         $this->assertEquals(10, $books->count());
     }
 }
