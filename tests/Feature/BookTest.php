@@ -24,34 +24,57 @@ class BookTest extends TestCase
         Book::find(2)->update(['hidden' => true]);
     }
 
-    public function testGuestGetBooks()
+    public function testGuestCanVisitShowAndIndexOnly()
     {
         $this->prepareData();
 
-        $res = $this->json('get', route('books.index'));
+        $this->getBooks()
+            ->assertStatus(200)
+            ->assertJsonCount(8);
 
-        $res->assertStatus(200)
+        // 未登录的情况下，即使传了 edit_mode 也不能看到隐藏的和软删除的
+        $this->getBooks(['edit_mode' => 1])
             ->assertJsonCount(8)
             ->assertDontSee('hidden')
             ->assertDontSee('deleted_at');
+
+        // 书籍详情页
+        $this->getBook(1)->assertStatus(404);
+        $this->getBook(2)->assertStatus(404);
+        $this->getBook(3)->assertStatus(200)->assertDontSee('hidden')->assertDontSee('deleted_at');
+
+        // 添加
+        $this->postCreateBook()
+            ->assertStatus(401);
+
+        // 删除
+        $this->destroyBook(5)
+            ->assertStatus(401);
+
+        // 彻底删除
+        $this->forceDestroyBook(5)
+            ->assertStatus(401);
     }
 
-    public function testAuthGetBooks()
+    protected function getBooks($params = [])
+    {
+        return $this->json('get', route('books.index'), $params);
+    }
+
+    public function testGetBooks()
     {
         $this->login();
 
         $this->prepareData();
 
-        $res = $this->json('get', route('books.index'));
-
-        $res->assertStatus(200)
+        $this->getBooks()
+            ->assertStatus(200)
             ->assertJsonCount(9)
             ->assertSee('hidden')
             ->assertSee('deleted_at');
 
-        $res = $this->json('get', route('books.index', ['edit_mode' => 1]));
-
-        $res->assertJsonCount(10);
+        $this->getBooks(['edit_mode' => 1])
+            ->assertJsonCount(10);
     }
 
     protected function postCreateBook($book = [])
@@ -61,9 +84,6 @@ class BookTest extends TestCase
 
     public function testAddBook()
     {
-        $this->postCreateBook()
-            ->assertStatus(401);
-
         $this->login();
 
         $this->postCreateBook()
@@ -81,7 +101,7 @@ class BookTest extends TestCase
         $input['read'] = $input['total'] + 1;
         $this->postCreateBook($input)
             ->assertStatus(422)
-            ->assertSee(json_encode('已读不能大于'.$input['total']));
+            ->assertSee(json_encode('已读不能大于' . $input['total']));
 
         $input = $book;
         $input['cover'] = 'not a file';
@@ -102,16 +122,6 @@ class BookTest extends TestCase
     }
 
     public function testDestroyBook()
-    {
-        $this->destroyBook()
-            ->assertStatus(404);
-
-        $this->prepareData();
-        $this->destroyBook(3)
-            ->assertStatus(401);
-    }
-
-    public function testAuthDestroyBook()
     {
         $this->login();
 
@@ -135,13 +145,6 @@ class BookTest extends TestCase
 
     public function testForceDestroyBook()
     {
-        $this->prepareData();
-        $this->forceDestroyBook()
-            ->assertStatus(401);
-    }
-
-    public function testAuthForceDestroyBook()
-    {
         $this->login();
 
         $this->prepareData();
@@ -162,25 +165,6 @@ class BookTest extends TestCase
     }
 
     public function testShowBook()
-    {
-        // 未登录的情况下
-
-        $this->prepareData();
-
-        // 不存在的书
-        $this->getBook(11)
-            ->assertStatus(404);
-
-        // 软删除的
-        $this->getBook(1)
-            ->assertStatus(404);
-
-        // 隐藏的
-        $this->getBook(2)
-            ->assertStatus(404);
-    }
-
-    public function testAuthShowBook()
     {
         // 登录的情况下
         $this->login();
