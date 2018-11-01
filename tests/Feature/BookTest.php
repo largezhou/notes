@@ -130,7 +130,7 @@ class BookTest extends TestCase
 
     protected function forceDestroyBook($id = null)
     {
-        return $this->json('delete', route('book.force_destroy', ['id' => $id ?: 1]));
+        return $this->json('delete', route('books.force_destroy', ['id' => $id ?: 1]));
     }
 
     public function testForceDestroyBook()
@@ -154,5 +154,45 @@ class BookTest extends TestCase
         // 没有被软删除的不能彻底删除
         $this->forceDestroyBook(2)
             ->assertStatus(404);
+    }
+
+    protected function getBook($id = null, $params = [])
+    {
+        return $this->json('get', route('books.show', ['book' => $id ?: 1]), $params);
+    }
+
+    public function testShowBook()
+    {
+        // 未登录的情况下
+
+        $this->prepareData();
+
+        // 不存在的书
+        $this->getBook(11)
+            ->assertStatus(404);
+
+        // 软删除的
+        $this->getBook(1)
+            ->assertStatus(404);
+
+        // 隐藏的
+        $this->getBook(2)
+            ->assertStatus(404);
+    }
+
+    public function testAuthShowBook()
+    {
+        // 登录的情况下
+        $this->login();
+
+        $this->prepareData();
+
+        // 软删除的
+        $this->getBook(1)
+            ->assertStatus(404);
+
+        // 隐藏的
+        $this->getBook(2)
+            ->assertJson(['hidden' => 1]);
     }
 }
