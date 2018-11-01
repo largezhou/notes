@@ -97,7 +97,7 @@ class BookTest extends TestCase
             ->assertSee('cover');
 
         $cover = UploadedFile::fake()->image('cover.jpg');
-        $book = collect(make(Book::class, ['cover' => $cover, 'hidden' => 1, 'deleted_at' => Carbon::now()]))
+        $book = collect(make(Book::class, ['cover' => $cover, 'hidden' => 1, 'deleted_at' => (string) Carbon::now()]))
             ->only(['title', 'total', 'read', 'started_at', 'cover', 'hidden', 'deleted_at'])
             ->toArray();
 
@@ -105,7 +105,7 @@ class BookTest extends TestCase
         $input['read'] = $input['total'] + 1;
         $this->postCreateBook($input)
             ->assertStatus(422)
-            ->assertSee(json_encode('已读不能大于' . $input['total']));
+            ->assertSee(json_encode('已读不能大于'.$input['total']));
 
         $input = $book;
         $input['cover'] = 'not a file';
@@ -113,8 +113,8 @@ class BookTest extends TestCase
             ->assertStatus(422)
             ->assertSee(json_encode('封面不是图片不行的'));
 
-        $this->postCreateBook($book)
-            ->assertStatus(201)
+        $res = $this->postCreateBook($book);
+        $res->assertStatus(201)
             ->assertSee('id');
 
         $this->assertDatabaseHas((new Book)->getTable(), ['id' => 1, 'hidden' => 0, 'deleted_at' => null]);

@@ -30,9 +30,9 @@ $factory->define(App\Models\Book::class, function (Faker $faker) {
 
     return [
         'title'      => $faker->sentence,
-        'started_at' => $faker->dateTimeBetween('-2 months'),
-        'created_at' => $faker->dateTimeBetween('-2 months'),
-        'updated_at' => $faker->dateTimeBetween('-2 months'),
+        'started_at' => $faker->dateTimeBetween('-2 months')->format('Y-m-d'),
+        'created_at' => $faker->dateTimeBetween('-2 months')->format('Y-m-d H:i:s'),
+        'updated_at' => $faker->dateTimeBetween('-2 months')->format('Y-m-d H:i:s'),
         'read'       => $read,
         'total'      => $total,
         'cover'      => '',
@@ -49,8 +49,8 @@ $factory->define(App\Models\Note::class, function (Faker $faker) {
         'content'      => $faker->paragraph(10),
         'html_content' => '<h1>HTML_CONTENT</h1>'.$faker->paragraph(10),
         'page'         => mt_rand(1, 1000),
-        'created_at'   => $faker->dateTimeBetween('-2 months'),
-        'updated_at'   => $faker->dateTimeBetween('-2 months'),
+        'created_at'   => $faker->dateTimeBetween('-2 months')->format('Y-m-d H:i:s'),
+        'updated_at'   => $faker->dateTimeBetween('-2 months')->format('Y-m-d H:i:s'),
         'deleted_at'   => null,
         'hidden'       => false,
     ];
