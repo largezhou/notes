@@ -47,12 +47,16 @@ class BookTest extends TestCase
         $this->postCreateBook()
             ->assertStatus(401);
 
-        // 删除
-        $this->destroyBook(5)
+        // 删除，由于删除书，使用了模型的绑定，所以查询模型会先于权限判定，所以要使用一个没有隐藏且没有软删除的
+        $this->destroyBook(10)
             ->assertStatus(401);
 
         // 彻底删除
-        $this->forceDestroyBook(5)
+        $this->forceDestroyBook()
+            ->assertStatus(401);
+
+        // 更新
+        $this->updateBook()
             ->assertStatus(401);
     }
 
@@ -178,5 +182,35 @@ class BookTest extends TestCase
         // 隐藏的
         $this->getBook(2)
             ->assertJson(['hidden' => 1]);
+    }
+
+    protected function updateBook($id = null, $data = [])
+    {
+        return $this->json('put', route('books.update', ['book' => $id ?: 1]), $data);
+    }
+
+    public function testUpdateHidden()
+    {
+        $this->login();
+
+        $this->prepareData();
+
+        // 显示
+        $this->updateBook(2, ['hidden' => false]);
+        $this->assertDatabaseHas((new Book())->getTable(), ['id' => 2, 'hidden' => 0]);
+
+        // 隐藏
+        $this->updateBook(2, ['hidden' => true]);
+        $this->assertDatabaseHas((new Book())->getTable(), ['id' => 2, 'hidden' => 1]);
+    }
+
+    public function testRestoreBook()
+    {
+        $this->login();
+
+        $this->prepareData();
+
+        $this->updateBook(1, ['deleted_at' => null]);
+        $this->assertDatabaseHas((new Book())->getTable(), ['id' => 1, 'deleted_at' => null]);
     }
 }
