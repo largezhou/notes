@@ -111,7 +111,7 @@ class BookRequest extends FormRequest
     {
         $validator = $this->newValidatorIfTotalHasFailed($validator);
 
-        parent::failedValidation($validator);
+        return parent::failedValidation($validator);
     }
 
     /**
