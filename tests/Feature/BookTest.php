@@ -213,4 +213,39 @@ class BookTest extends TestCase
         $this->updateBook(1, ['deleted_at' => null]);
         $this->assertDatabaseHas((new Book())->getTable(), ['id' => 1, 'deleted_at' => null]);
     }
+
+    public function testUpdateBook()
+    {
+        $this->login();
+        $this->prepareData();
+
+        $this->updateBook(1, [
+            'title' => 'update title',
+            'total' => '900',
+            'read'  => '666',
+        ])->assertStatus(200);
+
+        $this->assertDatabaseHas((new Book())->getTable(), [
+            'title' => 'update title',
+            'total' => '900',
+            'read'  => '666',
+        ]);
+    }
+
+    public function testUpdateReadOrTotalOnly()
+    {
+        $this->login();
+        $this->prepareData();
+
+
+        $book = Book::editMode()->first();
+
+        $res = $this->updateBook(1, ['read' => '10000']);
+        $res->assertStatus(422)
+            ->assertSee(json_encode(['read' => ['已读不能大于'.$book->total]]));
+
+        $res = $this->updateBook(1, ['total' => '1']);
+        $res->assertStatus(422)
+            ->assertSee(json_encode(['total' => ['总页数不能小于'.$book->read]]));
+    }
 }

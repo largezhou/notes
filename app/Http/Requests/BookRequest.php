@@ -46,12 +46,17 @@ class BookRequest extends FormRequest
         $book = $this->getBook();
 
         if ($this->hasRead && !$this->hasTotal) {
-            $this->request->set('total', (string) $book->total);
+            $key = 'total';
+            $val = (string) $book->total;
+        } elseif ($this->hasTotal && !$this->hasRead) {
+            $key = 'read';
+            $val = (string) $book->read;
+        } else {
+            return;
         }
 
-        if ($this->hasTotal && !$this->hasRead) {
-            $this->request->set('read', (string) $book->read);
-        }
+        $this->request->set($key, $val);
+        $this->merge([$key => $val]);
     }
 
     public function rules()
@@ -77,8 +82,7 @@ class BookRequest extends FormRequest
         switch ($this->method()) {
             case 'PUT':
                 $rules = array_only($rules, $this->keys());
-            default:
-                // null
+                break;
         }
 
         return $rules;
