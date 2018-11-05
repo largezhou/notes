@@ -14,19 +14,9 @@ class BookTest extends TestCase
 {
     use DatabaseMigrations;
 
-    /**
-     * 准备10个书籍数据，并有一个隐藏的和一个软删除的
-     */
-    protected function prepareData()
-    {
-        create(Book::class, [], 10);
-        Book::find(1)->delete();
-        Book::find(2)->update(['hidden' => true]);
-    }
-
     public function testGuestCanVisitShowAndIndexOnly()
     {
-        $this->prepareData();
+        $this->prepareBooks();
 
         $this->getBooks()
             ->assertStatus(200)
@@ -69,7 +59,7 @@ class BookTest extends TestCase
     {
         $this->login();
 
-        $this->prepareData();
+        $this->prepareBooks();
 
         $this->getBooks()
             ->assertStatus(200)
@@ -129,7 +119,7 @@ class BookTest extends TestCase
     {
         $this->login();
 
-        $this->prepareData();
+        $this->prepareBooks();
 
         // 已经软删除的无法查询到
         $this->destroyBook(1)
@@ -151,7 +141,7 @@ class BookTest extends TestCase
     {
         $this->login();
 
-        $this->prepareData();
+        $this->prepareBooks();
 
         $this->forceDestroyBook(1)
             ->assertStatus(204);
@@ -173,7 +163,7 @@ class BookTest extends TestCase
         // 登录的情况下
         $this->login();
 
-        $this->prepareData();
+        $this->prepareBooks();
 
         // 软删除的
         $this->getBook(1)
@@ -193,7 +183,7 @@ class BookTest extends TestCase
     {
         $this->login();
 
-        $this->prepareData();
+        $this->prepareBooks();
 
         // 显示
         $this->updateBook(2, ['hidden' => false]);
@@ -208,7 +198,7 @@ class BookTest extends TestCase
     {
         $this->login();
 
-        $this->prepareData();
+        $this->prepareBooks();
 
         $this->updateBook(1, ['deleted_at' => null]);
         $this->assertDatabaseHas((new Book())->getTable(), ['id' => 1, 'deleted_at' => null]);
@@ -217,7 +207,7 @@ class BookTest extends TestCase
     public function testUpdateBook()
     {
         $this->login();
-        $this->prepareData();
+        $this->prepareBooks();
 
         $this->updateBook(1, [
             'title' => 'update title',
@@ -235,7 +225,7 @@ class BookTest extends TestCase
     public function testUpdateReadOrTotalOnly()
     {
         $this->login();
-        $this->prepareData();
+        $this->prepareBooks();
 
 
         $book = Book::editMode()->first();

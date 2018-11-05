@@ -21,3 +21,5 @@ Route::group([
 
 Route::delete('deleted-books/{id}', 'BookController@forceDestroy')->name('books.force_destroy');
 Route::resource('books', 'BookController');
+
+Route::resource('notes', 'NoteController');
