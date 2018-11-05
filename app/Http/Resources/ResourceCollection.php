@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Pagination\AbstractPaginator;
+use phpDocumentor\Reflection\Types\Parent_;
 
 class ResourceCollection extends AnonymousResourceCollection
 {
@@ -50,25 +51,6 @@ class ResourceCollection extends AnonymousResourceCollection
     {
         $data = $this->collection->map->toArray($request)->all();
 
-        if ($this->resource instanceof AbstractPaginator) {
-            return [
-                'data' => $data,
-                'page' => [
-                    'from'         => $this->resource->firstItem(),
-                    'last_page'    => $this->resource->lastPage(),
-                    'per_page'     => $this->resource->perPage(),
-                    'to'           => $this->resource->lastItem(),
-                    'total'        => $this->resource->total(),
-                    'current_page' => $this->resource->currentPage(),
-                ],
-            ];
-        } else {
-            return $data;
-        }
-    }
-
-    public function toResponse($request)
-    {
-        return $this->toArray($request);
+        return $data;
     }
 }
