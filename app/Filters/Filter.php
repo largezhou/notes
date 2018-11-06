@@ -64,4 +64,11 @@ abstract class Filter
             $this->builder = $this->builder->withTrashed();
         }
     }
+
+    public function only(array $only)
+    {
+        $this->filters = array_intersect($this->filters, $only);
+
+        return $this;
+    }
 }

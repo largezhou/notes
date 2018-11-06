@@ -27,13 +27,34 @@ class NoteTest extends TestCase
         $secondBook->delete();
     }
 
+    protected function getNotes($params = [])
+    {
+        return $this->json('get', route('notes.index'), $params);
+    }
+
     public function testGetNotes()
     {
         $this->prepareNotes();
 
-        $res = $this->json('get', route('notes.index'));
+        $res = $this->getNotes();
         $res->assertStatus(200)
             ->assertJsonCount(15, 'data')
+            ->assertDontSee('hidden')
+            ->assertDontSee('deleted_at')
             ->assertJsonFragment(['total' => 80]);
+    }
+
+    public function testAuthGetNotes()
+    {
+        $this->login();
+        $this->prepareNotes();
+
+        $res = $this->getNotes();
+        $res->assertJsonFragment(['total' => 90])
+            ->assertSee('hidden')
+            ->assertSee('deleted_at');
+
+        $res = $this->getNotes(['edit_mode' => 1]);
+        $res->assertJsonFragment(['total' => 100]);
     }
 }
