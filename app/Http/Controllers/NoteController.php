@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Filters\BookFilter;
 use App\Filters\NoteFilter;
+use App\Http\Resources\BookResource;
 use App\Http\Resources\NoteResource;
 use App\Models\Note;
 use Illuminate\Http\Request;
@@ -23,5 +24,16 @@ class NoteController extends Controller
             ->paginate();
 
         return NoteResource::collection($notes)->except(['updated_at', 'created_at', 'content', 'html_content']);
+    }
+
+    public function show(Note $note)
+    {
+        $book = $note->book;
+        abort_if(!$book, 404);
+
+        return [
+            'note' => NoteResource::make($note),
+            'book' => BookResource::make($book),
+        ];
     }
 }

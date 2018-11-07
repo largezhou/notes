@@ -66,7 +66,7 @@ abstract class TestCase extends BaseTestCase
     protected function prepareNotes()
     {
         $this->prepareBook();
-        Book::withHidden()->withTrashed()->get()->each(function (Book $book) {
+        Book::showAll()->get()->each(function (Book $book) {
             $notesData = factory(Note::class, 10)->make()->each(function (Note $note) use ($book) {
                 $note->page = mt_rand(1, $book->read);
             });

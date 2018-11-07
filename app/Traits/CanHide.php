@@ -19,4 +19,10 @@ trait CanHide
     {
         $query->withoutGlobalScope('onlyShown');
     }
+
+    public function scopeShowAll(Builder $query)
+    {
+        parent::scopeShowAll($query);
+        $query->withHidden();
+    }
 }

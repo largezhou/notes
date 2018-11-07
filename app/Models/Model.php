@@ -49,4 +49,9 @@ class Model extends \Illuminate\Database\Eloquent\Model
 
         return parent::update(...func_get_args());
     }
+
+    public function scopeShowAll(Builder $query)
+    {
+        $query->withTrashed();
+    }
 }
