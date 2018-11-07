@@ -26,7 +26,7 @@ $factory->define(App\Models\User::class, function (Faker $faker) {
 
 $factory->define(App\Models\Book::class, function (Faker $faker) {
     $total = mt_rand(200, 900);
-    $read = mt_rand(0, $total);
+    $read = mt_rand(5, $total);
 
     return [
         'title'      => $faker->sentence,
