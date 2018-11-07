@@ -32,11 +32,11 @@ class BookController extends Controller
 
     public function show(Book $book)
     {
-        $notes = $book->notes()->filter(app(NoteFilter::class))->get();
+        $notes = $book->notes()->filter(app(NoteFilter::class))->orderBy('created_at', 'desc')->get();
 
         return [
             'book'  => BookResource::make($book),
-            'notes' => NoteResource::collection($notes)->except(['updated_at', 'created_at', 'content', 'html_content']),
+            'notes' => NoteResource::collection($notes)->except(['updated_at', 'content', 'html_content']),
         ];
     }
 

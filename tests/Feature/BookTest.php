@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Book;
+use App\Models\Note;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Http\UploadedFile;
@@ -183,12 +184,36 @@ class BookTest extends TestCase
         $this->getBook(2)
             ->assertSee('"hidden":"1"');
 
-        // 笔记
+        // 笔记有软删除的
         $this->getBook(3)
             ->assertJsonCount(9, 'notes');
 
+        // 笔记编辑模式显示所有
         $this->getBook(3, ['edit_mode' => 1])
             ->assertJsonCount(10, 'notes');
+    }
+
+    public function testBookNotesSort()
+    {
+        $this->prepareData();
+
+        // 默认添加时间倒序
+        $this->assertOrderBy($this->getBook(4), 'created_at', 'desc', 'notes');
+
+        $this->assertOrderBy($this->getBook(4, [
+            '_sort_field' => 'created_at',
+            '_sort_type'  => 'asc',
+        ]), 'created_at', 'dsc', 'notes');
+
+        $this->assertOrderBy($this->getBook(4, [
+            '_sort_field' => 'page',
+            '_sort_type'  => 'desc',
+        ]), 'page', 'desc', 'notes');
+
+        $this->assertOrderBy($this->getBook(4, [
+            '_sort_field' => 'page',
+            '_sort_type'  => 'asc',
+        ]), 'page', 'asc', 'notes');
     }
 
     protected function updateBook($id = null, $data = [])

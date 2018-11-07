@@ -71,4 +71,13 @@ abstract class Filter
 
         return $this;
     }
+
+    protected function sortField($field)
+    {
+        if (!($type = $this->request->get('_sort_type'))) {
+            return;
+        }
+
+        $this->builder->orderBy($field, $type);
+    }
 }
