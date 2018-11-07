@@ -21,7 +21,7 @@ class NoteResource extends JsonResource
             'deleted_at'   => $this->deleted_at,
             'created_at'   => $this->created_at,
             'updated_at'   => $this->updated_at,
-            'book'         => $book ? BookResource::make($book) : new MissingValue(),
+            'book'         => $book ? BookResource::make($book)->only(['id', 'title']) : new MissingValue(),
         ];
     }
 }
