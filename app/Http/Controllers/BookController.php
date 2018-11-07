@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Filters\BookFilter;
+use App\Filters\NoteFilter;
 use App\Http\Requests\BookRequest;
 use App\Http\Resources\BookResource;
+use App\Http\Resources\NoteResource;
 use App\Models\Book;
+use App\Models\Note;
 
 class BookController extends Controller
 {
@@ -29,7 +32,12 @@ class BookController extends Controller
 
     public function show(Book $book)
     {
-        return BookResource::make($book);
+        $notes = $book->notes()->filter(app(NoteFilter::class))->get();
+
+        return [
+            'book'  => BookResource::make($book),
+            'notes' => NoteResource::collection($notes)->except(['updated_at', 'created_at', 'content', 'html_content']),
+        ];
     }
 
     public function destroy(Book $book)

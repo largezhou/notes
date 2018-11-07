@@ -14,9 +14,19 @@ class BookTest extends TestCase
 {
     use DatabaseMigrations;
 
+    protected function prepareData()
+    {
+        (new \BookTableSeeder())->run();
+        Book::find(1)->delete();
+        Book::find(2)->update(['hidden' => true]);
+        $notes = Book::find(3)->notes;
+        $notes[0]->delete();
+        $notes[1]->update(['hidden' => true]);
+    }
+
     public function testGuestCanVisitShowAndIndexOnly()
     {
-        $this->prepareBooks();
+        $this->prepareData();
 
         $res = $this->getBooks();
         $res->assertStatus(200)
@@ -59,7 +69,7 @@ class BookTest extends TestCase
     {
         $this->login();
 
-        $this->prepareBooks();
+        $this->prepareData();
 
         $this->getBooks()
             ->assertStatus(200)
@@ -119,7 +129,7 @@ class BookTest extends TestCase
     {
         $this->login();
 
-        $this->prepareBooks();
+        $this->prepareData();
 
         // 已经软删除的无法查询到
         $this->destroyBook(1)
@@ -141,7 +151,7 @@ class BookTest extends TestCase
     {
         $this->login();
 
-        $this->prepareBooks();
+        $this->prepareData();
 
         $this->forceDestroyBook(1)
             ->assertStatus(204);
@@ -163,7 +173,7 @@ class BookTest extends TestCase
         // 登录的情况下
         $this->login();
 
-        $this->prepareBooks();
+        $this->prepareData();
 
         // 软删除的
         $this->getBook(1)
@@ -171,7 +181,14 @@ class BookTest extends TestCase
 
         // 隐藏的
         $this->getBook(2)
-            ->assertJson(['hidden' => 1]);
+            ->assertSee('"hidden":"1"');
+
+        // 笔记
+        $this->getBook(3)
+            ->assertJsonCount(9, 'notes');
+
+        $this->getBook(3, ['edit_mode' => 1])
+            ->assertJsonCount(10, 'notes');
     }
 
     protected function updateBook($id = null, $data = [])
@@ -183,7 +200,7 @@ class BookTest extends TestCase
     {
         $this->login();
 
-        $this->prepareBooks();
+        $this->prepareData();
 
         // 显示
         $this->updateBook(2, ['hidden' => false]);
@@ -198,7 +215,7 @@ class BookTest extends TestCase
     {
         $this->login();
 
-        $this->prepareBooks();
+        $this->prepareData();
 
         $this->updateBook(1, ['deleted_at' => null]);
         $this->assertDatabaseHas((new Book())->getTable(), ['id' => 1, 'deleted_at' => null]);
@@ -207,7 +224,7 @@ class BookTest extends TestCase
     public function testUpdateBook()
     {
         $this->login();
-        $this->prepareBooks();
+        $this->prepareData();
 
         $this->updateBook(1, [
             'title' => 'update title',
@@ -225,7 +242,7 @@ class BookTest extends TestCase
     public function testUpdateReadOrTotalOnly()
     {
         $this->login();
-        $this->prepareBooks();
+        $this->prepareData();
 
 
         $book = Book::editMode()->first();

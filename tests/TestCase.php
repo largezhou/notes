@@ -2,7 +2,6 @@
 
 namespace Tests;
 
-use App\Models\Book;
 use App\Models\User;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
@@ -16,12 +15,5 @@ abstract class TestCase extends BaseTestCase
         $this->actingAs($user);
 
         return $user;
-    }
-
-    protected function prepareBooks()
-    {
-        create(Book::class, [], 10);
-        Book::find(1)->delete();
-        Book::find(2)->update(['hidden' => true]);
     }
 }
