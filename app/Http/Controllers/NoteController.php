@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Filters\BookFilter;
+use App\Filters\NoteFilter;
 use App\Http\Resources\NoteResource;
 use App\Models\Note;
 use Illuminate\Http\Request;
@@ -12,6 +13,7 @@ class NoteController extends Controller
     public function index(Request $request)
     {
         $notes = Note::latest()
+            ->filter(app(NoteFilter::class)->only(['edit_mode']))
             ->with(['book' => function ($query) {
                 $query->withTrashed();
             }])

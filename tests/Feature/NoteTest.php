@@ -15,18 +15,6 @@ class NoteTest extends TestCase
 {
     use DatabaseMigrations;
 
-    protected function prepareNotes()
-    {
-        (new \BookTableSeeder())->run();
-        $notes = Note::latest()->with('book')->get();
-
-        $firstBook = $notes->first()->book;
-        $firstBook->update(['hidden' => true]);
-
-        $secondBook = $notes[1]->book;
-        $secondBook->delete();
-    }
-
     protected function getNotes($params = [])
     {
         return $this->json('get', route('notes.index'), $params);
@@ -41,7 +29,7 @@ class NoteTest extends TestCase
             ->assertJsonCount(15, 'data')
             ->assertDontSee('hidden')
             ->assertDontSee('deleted_at')
-            ->assertJsonFragment(['total' => 80]);
+            ->assertJsonFragment(['total' => 78]);
     }
 
     public function testAuthGetNotes()
@@ -49,8 +37,9 @@ class NoteTest extends TestCase
         $this->login();
         $this->prepareNotes();
 
+        // 有一个软删除的书，和一个软删除的笔记，所以总数应该是89
         $res = $this->getNotes();
-        $res->assertJsonFragment(['total' => 90])
+        $res->assertJsonFragment(['total' => 89])
             ->assertSee('hidden')
             ->assertSee('deleted_at');
 

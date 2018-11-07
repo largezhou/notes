@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\Book;
-use App\Models\Note;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Http\UploadedFile;
@@ -15,19 +14,9 @@ class BookTest extends TestCase
 {
     use DatabaseMigrations;
 
-    protected function prepareData()
-    {
-        (new \BookTableSeeder())->run();
-        Book::find(1)->delete();
-        Book::find(2)->update(['hidden' => true]);
-        $notes = Book::find(3)->notes;
-        $notes[0]->delete();
-        $notes[1]->update(['hidden' => true]);
-    }
-
     public function testGuestCanVisitShowAndIndexOnly()
     {
-        $this->prepareData();
+        $this->prepareBook();
 
         $res = $this->getBooks();
         $res->assertStatus(200)
@@ -70,7 +59,7 @@ class BookTest extends TestCase
     {
         $this->login();
 
-        $this->prepareData();
+        $this->prepareBook();
 
         $this->getBooks()
             ->assertStatus(200)
@@ -130,7 +119,7 @@ class BookTest extends TestCase
     {
         $this->login();
 
-        $this->prepareData();
+        $this->prepareBook();
 
         // 已经软删除的无法查询到
         $this->destroyBook(1)
@@ -152,7 +141,7 @@ class BookTest extends TestCase
     {
         $this->login();
 
-        $this->prepareData();
+        $this->prepareBook();
 
         $this->forceDestroyBook(1)
             ->assertStatus(204);
@@ -174,7 +163,7 @@ class BookTest extends TestCase
         // 登录的情况下
         $this->login();
 
-        $this->prepareData();
+        $this->prepareNotes();
 
         // 软删除的
         $this->getBook(1)
@@ -195,7 +184,7 @@ class BookTest extends TestCase
 
     public function testBookNotesSort()
     {
-        $this->prepareData();
+        $this->prepareNotes();
 
         // 默认添加时间倒序
         $this->assertOrderBy($this->getBook(4), 'created_at', 'desc', 'notes');
@@ -225,7 +214,7 @@ class BookTest extends TestCase
     {
         $this->login();
 
-        $this->prepareData();
+        $this->prepareBook();
 
         // 显示
         $this->updateBook(2, ['hidden' => false]);
@@ -240,7 +229,7 @@ class BookTest extends TestCase
     {
         $this->login();
 
-        $this->prepareData();
+        $this->prepareBook();
 
         $this->updateBook(1, ['deleted_at' => null]);
         $this->assertDatabaseHas((new Book())->getTable(), ['id' => 1, 'deleted_at' => null]);
@@ -249,7 +238,7 @@ class BookTest extends TestCase
     public function testUpdateBook()
     {
         $this->login();
-        $this->prepareData();
+        $this->prepareBook();
 
         $this->updateBook(1, [
             'title' => 'update title',
@@ -267,7 +256,7 @@ class BookTest extends TestCase
     public function testUpdateReadOrTotalOnly()
     {
         $this->login();
-        $this->prepareData();
+        $this->prepareBook();
 
 
         $book = Book::editMode()->first();
