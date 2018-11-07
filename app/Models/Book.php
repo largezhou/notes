@@ -18,12 +18,6 @@ class Book extends Model
 
     protected $fillable = ['title', 'total', 'read', 'started_at', 'cover', 'hidden'];
 
-    public static function getBooks()
-    {
-        return static::orderBy('updated_at', 'desc')
-            ->filter(app(BookFilter::class))->get();
-    }
-
     public static function addBook($data)
     {
         $data['hidden'] = false;

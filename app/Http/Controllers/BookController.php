@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Filters\BookFilter;
 use App\Http\Requests\BookRequest;
 use App\Http\Resources\BookResource;
 use App\Models\Book;
@@ -10,7 +11,7 @@ class BookController extends Controller
 {
     public function index()
     {
-        $books = Book::getBooks();
+        $books = Book::orderBy('updated_at', 'desc')->filter(app(BookFilter::class))->get();
 
         return BookResource::collection($books);
     }

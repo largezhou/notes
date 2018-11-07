@@ -18,8 +18,8 @@ class BookTest extends TestCase
     {
         $this->prepareBooks();
 
-        $this->getBooks()
-            ->assertStatus(200)
+        $res = $this->getBooks();
+        $res->assertStatus(200)
             ->assertJsonCount(8);
 
         // 未登录的情况下，即使传了 edit_mode 也不能看到隐藏的和软删除的
@@ -95,7 +95,7 @@ class BookTest extends TestCase
         $input['read'] = $input['total'] + 1;
         $this->postCreateBook($input)
             ->assertStatus(422)
-            ->assertSee(json_encode('已读不能大于'.$input['total']));
+            ->assertSee(json_encode('已读不能大于' . $input['total']));
 
         $input = $book;
         $input['cover'] = 'not a file';
@@ -232,10 +232,10 @@ class BookTest extends TestCase
 
         $res = $this->updateBook(1, ['read' => '10000']);
         $res->assertStatus(422)
-            ->assertSee(json_encode(['read' => ['已读不能大于'.$book->total]]));
+            ->assertSee(json_encode(['read' => ['已读不能大于' . $book->total]]));
 
         $res = $this->updateBook(1, ['total' => '1']);
         $res->assertStatus(422)
-            ->assertSee(json_encode(['total' => ['总页数不能小于'.$book->read]]));
+            ->assertSee(json_encode(['total' => ['总页数不能小于' . $book->read]]));
     }
 }
