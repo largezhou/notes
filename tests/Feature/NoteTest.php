@@ -2,10 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Http\Resources\BookResource;
 use App\Models\Book;
 use App\Models\Note;
-use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -90,5 +88,44 @@ class NoteTest extends TestCase
         // 隐藏的书
         $book2Notes = $books[1]->notes;
         $this->getNote($book2Notes[0]->id)->assertStatus(200);
+    }
+
+    protected function createNote($bookId, $data = [])
+    {
+        return $this->json('post', route('notes.store', ['book' => $bookId]), $data);
+    }
+
+    public function testCreateNote()
+    {
+        $this->prepareBook();
+
+        $this->createNote(3)->assertStatus(401);
+
+        $this->login();
+
+        $this->createNote(999)->assertStatus(404);
+
+        $book = Book::find(3);
+        $noteData = make(Note::class, ['hidden' => '1', 'page' => $book->total - 1])->toArray();
+        $noteData = array_except($noteData, ['book_id']);
+
+        $testData = $noteData;
+        $testData['page'] = $book->total + 1;
+        $res = $this->createNote(3, $testData);
+        $res->assertStatus(422);
+        $this->assertJsonContains("不能超过{$book->total}页", $res->getContent());
+
+        $testData = $noteData;
+        $testData['tags'] = 'string';
+        $res = $this->createNote(3, $testData);
+        $this->assertJsonContains('数据格式不对', $res->getContent());
+
+        $res = $this->createNote(3, $noteData);
+        $res->assertStatus(201)
+            ->assertJson(['id' => 1]);
+
+        $testData = array_except($noteData, ['created_at', 'updated_at']);
+        $testData['book_id'] = $book->id;
+        $this->assertDatabaseHas((new Note())->getTable(), $testData);
     }
 }

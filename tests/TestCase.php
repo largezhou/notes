@@ -79,4 +79,17 @@ abstract class TestCase extends BaseTestCase
         $notes[0]->delete();
         $notes[1]->update(['hidden' => true]);
     }
+
+    /**
+     * 断言一个 json 字符串中，是否包含某个字符串片段
+     *
+     * @param string $needle 要查找的片段
+     * @param string $haystack 原始 json 字符串
+     */
+    protected function assertJsonContains(string $needle, string $haystack)
+    {
+        $haystack = json_encode(json_decode($haystack, true), JSON_UNESCAPED_UNICODE);
+
+        $this->assertContains($needle, $haystack);
+    }
 }

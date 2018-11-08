@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Filters\BookFilter;
 use App\Filters\NoteFilter;
+use App\Http\Requests\NoteRequest;
 use App\Http\Resources\BookResource;
 use App\Http\Resources\NoteResource;
+use App\Models\Book;
 use App\Models\Note;
 use Illuminate\Http\Request;
 
@@ -35,5 +37,14 @@ class NoteController extends Controller
             'note' => NoteResource::make($note),
             'book' => BookResource::make($book),
         ];
+    }
+
+    public function store(NoteRequest $request, Book $book)
+    {
+        $note = $book->notes()->create($request->all());
+
+        return $this->created([
+            'id' => $note->id,
+        ]);
     }
 }
