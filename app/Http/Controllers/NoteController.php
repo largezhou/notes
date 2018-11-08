@@ -47,4 +47,11 @@ class NoteController extends Controller
             'id' => $note->id,
         ]);
     }
+
+    public function destroy(Note $note)
+    {
+        $note->delete();
+
+        return $this->noContent();
+    }
 }

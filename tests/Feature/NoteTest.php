@@ -128,4 +128,20 @@ class NoteTest extends TestCase
         $testData['book_id'] = $book->id;
         $this->assertDatabaseHas((new Note())->getTable(), $testData);
     }
+
+    protected function destroyNote($id)
+    {
+        return $this->json('delete', route('notes.destroy', ['note' => $id]));
+    }
+
+    public function testDestroyNote()
+    {
+        create(Note::class);
+
+        $this->destroyNote(1)->assertStatus(401);
+
+        $this->login();
+
+        $this->destroyNote(1)->assertStatus(204);
+    }
 }
