@@ -16,7 +16,7 @@ class CreateBooksTable extends Migration
         Schema::create('books', function (Blueprint $table) {
             $table->increments('id');
             $table->string('title');
-            $table->boolean('hidden');
+            $table->boolean('hidden')->default(false);
             $table->string('cover');
             $table->smallInteger('read');
             $table->smallInteger('total');

@@ -21,7 +21,7 @@ class CreateNotesTable extends Migration
             $table->string('desc')->nullable();
             $table->text('content');
             $table->text('html_content');
-            $table->boolean('hidden');
+            $table->boolean('hidden')->default(false);
             $table->softDeletes();
             $table->timestamps();
         });
