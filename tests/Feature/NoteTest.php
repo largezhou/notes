@@ -157,6 +157,7 @@ class NoteTest extends TestCase
 
         $this->login();
 
+        $delete(1)->assertStatus(404);
         $this->destroyNote(1);
         $delete(1)->assertStatus(204);
     }
