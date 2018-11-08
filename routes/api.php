@@ -22,5 +22,6 @@ Route::group([
 Route::delete('deleted-books/{id}', 'BookController@forceDestroy')->name('books.force_destroy');
 Route::resource('books', 'BookController');
 
+Route::delete('deleted-notes/{id}', 'NoteController@forceDestroy')->name('notes.force_destroy');
 Route::resource('notes', 'NoteController')->except('store');
 Route::post('books/{book}/notes', 'NoteController@store')->name('notes.store');

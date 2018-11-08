@@ -144,4 +144,20 @@ class NoteTest extends TestCase
 
         $this->destroyNote(1)->assertStatus(204);
     }
+
+    public function testForceDestroyNote()
+    {
+        create(Note::class);
+
+        $delete = function ($id) {
+            return $this->json('delete', route('notes.force_destroy', ['id' => $id]));
+        };
+
+        $delete(1)->assertStatus(401);
+
+        $this->login();
+
+        $this->destroyNote(1);
+        $delete(1)->assertStatus(204);
+    }
 }

@@ -54,4 +54,11 @@ class NoteController extends Controller
 
         return $this->noContent();
     }
+
+    public function forceDestroy($id)
+    {
+        Note::onlyTrashed()->findOrFail($id)->forceDelete();
+
+        return $this->noContent();
+    }
 }
