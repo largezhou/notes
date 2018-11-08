@@ -8,7 +8,6 @@ use App\Http\Requests\BookRequest;
 use App\Http\Resources\BookResource;
 use App\Http\Resources\NoteResource;
 use App\Models\Book;
-use App\Models\Note;
 
 class BookController extends Controller
 {
@@ -25,7 +24,7 @@ class BookController extends Controller
         $data = $request->all();
         $data = array_merge($data, $files);
 
-        $book = Book::addBook($data);
+        $book = Book::create($data);
 
         return $this->created(['id' => $book->id]);
     }

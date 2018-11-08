@@ -107,7 +107,9 @@ class BookTest extends TestCase
         $res->assertStatus(201)
             ->assertSee('id');
 
-        $this->assertDatabaseHas((new Book)->getTable(), ['id' => 1, 'hidden' => 0, 'deleted_at' => null]);
+        $seeData = array_except($book, ['cover']);
+        $seeData['deleted_at'] = null;
+        $this->assertDatabaseHas((new Book)->getTable(), $seeData);
     }
 
     protected function destroyBook($id = null)

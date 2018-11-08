@@ -18,13 +18,6 @@ class Book extends Model
 
     protected $fillable = ['title', 'total', 'read', 'started_at', 'cover', 'hidden'];
 
-    public static function addBook($data)
-    {
-        $data['hidden'] = false;
-
-        return static::create($data);
-    }
-
     public function notes()
     {
         return $this->hasMany(Note::class);
