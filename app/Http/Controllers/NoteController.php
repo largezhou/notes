@@ -43,6 +43,11 @@ class NoteController extends Controller
     {
         $note = $book->notes()->create($request->all());
 
+        if ($request->get('mark_read')) {
+            $book->read = $request->get('page');
+            $book->save();
+        }
+
         return $this->created([
             'id' => $note->id,
         ]);

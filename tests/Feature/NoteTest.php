@@ -106,7 +106,8 @@ class NoteTest extends TestCase
         $this->createNote(999)->assertStatus(404);
 
         $book = Book::find(3);
-        $noteData = make(Note::class, ['hidden' => '1', 'page' => $book->total - 1])->toArray();
+        // 把笔记的所属页数，设置为书籍已读页多一点，避免与书籍的 read 数相同，之后用来测试标记为读到此页
+        $noteData = make(Note::class, ['hidden' => '1', 'page' => $book->read + 5])->toArray();
         $noteData = array_except($noteData, ['book_id']);
 
         $testData = $noteData;
@@ -120,6 +121,7 @@ class NoteTest extends TestCase
         $res = $this->createNote(3, $testData);
         $this->assertJsonContains('数据格式不对', $res->getContent());
 
+        // 创建成功，没有标记为读到此页
         $res = $this->createNote(3, $noteData);
         $res->assertStatus(201)
             ->assertJson(['id' => 1]);
@@ -127,6 +129,13 @@ class NoteTest extends TestCase
         $testData = array_except($noteData, ['created_at', 'updated_at']);
         $testData['book_id'] = $book->id;
         $this->assertDatabaseHas((new Note())->getTable(), $testData);
+        $this->assertDatabaseHas((new Book())->getTable(), ['id' => $book->id, 'read' => $book->read]);
+
+        // 标记为读到此页
+        $res = $this->createNote(3, $noteData + ['mark_read' => true]);
+        $testData['book_id'] = $book->id;
+        $this->assertDatabaseHas((new Note())->getTable(), $testData);
+        $this->assertDatabaseHas((new Book())->getTable(), ['id' => $book->id, 'read' => $testData['page']]);
     }
 
     protected function destroyNote($id)
