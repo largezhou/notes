@@ -66,4 +66,13 @@ class NoteController extends Controller
 
         return $this->noContent();
     }
+
+    public function update(NoteRequest $request, $id)
+    {
+        $note = $request->getNote();
+
+        $note->update($request->all());
+
+        return NoteResource::make($note);
+    }
 }

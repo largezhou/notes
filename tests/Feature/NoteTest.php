@@ -170,4 +170,22 @@ class NoteTest extends TestCase
         $this->destroyNote(1);
         $delete(1)->assertStatus(204);
     }
+
+    protected function updateNote($id, $data = [])
+    {
+        return $this->json('put', route('notes.update', ['id' => $id]), $data);
+    }
+
+    public function testToggleHiddenNote()
+    {
+        $this->login();
+        create(Note::class, ['book_id' => 1]);
+        create(Book::class);
+
+        $res = $this->updateNote(1, ['hidden' => true]);
+        $res->assertStatus(200);
+        $this->assertDatabaseHas((new Note())->getTable(), ['id' => 1, 'hidden' => 1]);
+        $this->updateNote(1, ['hidden' => false]);
+        $this->assertDatabaseHas((new Note())->getTable(), ['id' => 1, 'hidden' => 0]);
+    }
 }

@@ -2,15 +2,31 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Note;
 use Illuminate\Foundation\Http\FormRequest;
 
 class NoteRequest extends FormRequest
 {
+    protected $note;
+
+    public function getNote()
+    {
+        if (!$this->note) {
+            $this->note = Note::showAll()->findOrFail($this->route('note'));
+        }
+
+        return $this->note;
+    }
+
     public function rules()
     {
-        $book = $this->route('book');
+        if ($this->isMethod('post')) {
+            $book = $this->route('book');
+        } else {
+            $book = $this->getNote()->book;
+        }
 
-        return [
+        $rules = [
             'page'         => 'bail|required|integer|max:' . $book->total,
             'title'        => 'bail|nullable|string|max:255',
             'desc'         => 'bail|nullable|string|max:255',
@@ -18,6 +34,12 @@ class NoteRequest extends FormRequest
             'html_content' => 'bail|required|string|max:60000',
             'tags'         => 'array',
         ];
+
+        if ($this->isMethod('put')) {
+            $rules = array_only($rules, $this->keys());
+        }
+
+        return $rules;
     }
 
     public function attributes()
