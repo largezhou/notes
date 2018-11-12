@@ -25,7 +25,7 @@ class ModelTagTest extends TestCase
         $this->assertDatabaseHas('model_tags', [
             'tag_id'      => $tag->id,
             'target_id'   => $note->id,
-            'target_type' => Note::class,
+            'target_type' => 'notes',
         ]);
 
         $tags = $note->tags;
