@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Book;
 use App\Models\Note;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -187,5 +188,17 @@ class NoteTest extends TestCase
         $this->assertDatabaseHas((new Note())->getTable(), ['id' => 1, 'hidden' => 1]);
         $this->updateNote(1, ['hidden' => false]);
         $this->assertDatabaseHas((new Note())->getTable(), ['id' => 1, 'hidden' => 0]);
+    }
+
+    public function testRestoreNote()
+    {
+        $this->login();
+
+        create(Note::class, ['book_id' => 1, 'deleted_at' => Carbon::now()]);
+        create(Book::class);
+
+        $res = $this->updateNote(1, ['deleted_at' => null]);
+        $res->assertStatus(200);
+        $this->assertDatabaseHas((new Note())->getTable(), ['id' => 1, 'deleted_at' => null]);
     }
 }
