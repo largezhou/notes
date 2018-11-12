@@ -46,9 +46,7 @@ class NoteController extends Controller
         $note = $book->notes()->create($request->all());
 
         if ($tags = $request->get('tags')) {
-            list($exists, $new) = Tag::createTags($tags);
-            $note->tags()->sync(array_keys($exists));
-            $note->tags()->createMany($new);
+            $note->handleSyncTags($tags);
         }
 
         if ($request->get('mark_read')) {
@@ -80,6 +78,10 @@ class NoteController extends Controller
         $note = $request->getNote();
 
         $note->update($request->all());
+
+        if ($tags = $request->get('tags')) {
+            $note->handleSyncTags($tags);
+        }
 
         return NoteResource::make($note);
     }

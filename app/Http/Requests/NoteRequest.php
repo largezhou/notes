@@ -7,6 +7,9 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class NoteRequest extends FormRequest
 {
+    /**
+     * @var Note
+     */
     protected $note;
 
     public function getNote()

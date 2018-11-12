@@ -21,4 +21,11 @@ class Note extends Model
     {
         return $this->morphToMany(Tag::class, 'target', 'model_tags');
     }
+
+    public function handleSyncTags($tags)
+    {
+        list($exists, $new) = Tag::createTags($tags);
+        $this->tags()->sync(array_keys($exists));
+        $this->tags()->createMany($new);
+    }
 }

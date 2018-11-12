@@ -158,8 +158,6 @@ class NoteTest extends TestCase
         $res->assertStatus(201);
 
         $this->assertDatabaseHas((new Tag())->getTable(), ['name' => $newTag]);
-        // TODO 这里如果直接传入 $existsTag 居然找不到，，，
-        $this->assertDatabaseHas((new Tag())->getTable(), ['name' => $existsTag['name']]);
         $this->assertDatabaseHas('model_tags', [
             'tag_id'      => $existsTag['id'],
             'target_id'   => 1,
@@ -260,5 +258,38 @@ class NoteTest extends TestCase
         $res->assertStatus(200);
 
         $this->assertDatabaseHas((new Note())->getTable(), $updateData + ['id' => 1]);
+    }
+
+    public function testUpdateNoteWithTags()
+    {
+        $this->login();
+
+        $note = create(Note::class, ['book_id' => 1]);
+        create(Book::class);
+
+        $note->tags()->create(['name' => 'old attached tag']);
+        $existsTag = create(Tag::class)->toArray();
+        $newTag = 'new tag';
+
+        $res = $this->updateNote($note->id, [
+            'tags' => [$existsTag, $newTag],
+        ]);
+        $res->assertStatus(200);
+
+        $this->assertDatabaseHas('tags', ['name' => 'new tag']);
+
+        $p = [
+            'target_id'   => $note->id,
+            'target_type' => 'notes',
+        ];
+
+        $p['tag_id'] = $existsTag['id'];
+        $this->assertDatabaseHas('model_tags', $p);
+
+        $p['tag_id'] = 3;
+        $this->assertDatabaseHas('model_tags', $p);
+
+        $p['tag_id'] = 1;
+        $this->assertDatabaseMissing('model_tags', $p);
     }
 }
