@@ -16,4 +16,9 @@ class Note extends Model
     {
         return $this->belongsTo(Book::class);
     }
+
+    public function tags()
+    {
+        return $this->morphToMany(Tag::class, 'target', 'model_tags');
+    }
 }

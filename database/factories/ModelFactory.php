@@ -47,11 +47,17 @@ $factory->define(App\Models\Note::class, function (Faker $faker) {
         'title'        => $faker->sentence,
         'desc'         => $faker->sentence,
         'content'      => $faker->paragraph(10),
-        'html_content' => '<h1>HTML_CONTENT</h1>'.$faker->paragraph(10),
+        'html_content' => '<h1>HTML_CONTENT</h1>' . $faker->paragraph(10),
         'page'         => mt_rand(1, 1000),
         'created_at'   => $faker->dateTimeBetween('-2 months')->format('Y-m-d H:i:s'),
         'updated_at'   => $faker->dateTimeBetween('-2 months')->format('Y-m-d H:i:s'),
         'deleted_at'   => null,
         'hidden'       => false,
+    ];
+});
+
+$factory->define(App\Models\Tag::class, function (Faker $faker) {
+    return [
+        'name' => $faker->word,
     ];
 });
