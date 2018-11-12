@@ -12,4 +12,22 @@ class Tag extends Model
     {
         return $this->morphedByMany(Note::class, 'target', 'model_tags');
     }
+
+    public static function createTags($data)
+    {
+        $data = array_map(function ($d) {
+            return is_array($d) ? $d['name'] : $d;
+        }, $data);
+
+        $exists = static::whereIn('name', $data)->pluck('name', 'id')->toArray();
+
+        $new = array_diff($data, $exists);
+        $new = array_map(function ($d) {
+            return [
+                'name' => $d,
+            ];
+        }, $new);
+
+        return [$exists, $new];
+    }
 }

@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Book;
 use App\Models\Note;
+use App\Models\Tag;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
@@ -137,6 +138,39 @@ class NoteTest extends TestCase
         $testData['book_id'] = $book->id;
         $this->assertDatabaseHas((new Note())->getTable(), $testData);
         $this->assertDatabaseHas((new Book())->getTable(), ['id' => $book->id, 'read' => $testData['page']]);
+    }
+
+    public function testCreateNoteWithTags()
+    {
+        $this->login();
+
+        $book = create(Book::class);
+
+
+        $existsTag = create(Tag::class)->toArray();
+        $newTag = 'test tag';
+        $noteData = make(Note::class, [
+            'tags' => [$existsTag, $newTag],
+            'page' => $book->total - 1,
+        ])->toArray();
+
+        $res = $this->createNote(1, $noteData);
+        $res->assertStatus(201);
+
+        $this->assertDatabaseHas((new Tag())->getTable(), ['name' => $newTag]);
+        // TODO 这里如果直接传入 $existsTag 居然找不到，，，
+        $this->assertDatabaseHas((new Tag())->getTable(), ['name' => $existsTag['name']]);
+        $this->assertDatabaseHas('model_tags', [
+            'tag_id'      => $existsTag['id'],
+            'target_id'   => 1,
+            'target_type' => 'notes',
+        ]);
+
+        $this->assertDatabaseHas('model_tags', [
+            'tag_id'      => 2,
+            'target_id'   => 1,
+            'target_type' => 'notes',
+        ]);
     }
 
     protected function destroyNote($id)

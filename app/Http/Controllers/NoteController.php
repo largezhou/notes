@@ -9,6 +9,7 @@ use App\Http\Resources\BookResource;
 use App\Http\Resources\NoteResource;
 use App\Models\Book;
 use App\Models\Note;
+use App\Models\Tag;
 use Illuminate\Http\Request;
 
 class NoteController extends Controller
@@ -41,7 +42,14 @@ class NoteController extends Controller
 
     public function store(NoteRequest $request, Book $book)
     {
+        /** @var Note $note */
         $note = $book->notes()->create($request->all());
+
+        if ($tags = $request->get('tags')) {
+            list($exists, $new) = Tag::createTags($tags);
+            $note->tags()->sync(array_keys($exists));
+            $note->tags()->createMany($new);
+        }
 
         if ($request->get('mark_read')) {
             $book->read = $request->get('page');
