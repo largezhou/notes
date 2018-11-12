@@ -201,4 +201,30 @@ class NoteTest extends TestCase
         $res->assertStatus(200);
         $this->assertDatabaseHas((new Note())->getTable(), ['id' => 1, 'deleted_at' => null]);
     }
+
+    public function testUpdateNote()
+    {
+        $this->login();
+
+        create(Note::class, ['book_id' => 1]);
+        create(Book::class);
+
+        $book = Book::find(1);
+        $res = $this->updateNote(1, ['page' => 9999]);
+        $res->assertStatus(422)->assertJsonCount(1, 'errors');
+        $this->assertJsonContains("不能超过{$book->total}页", $res->getContent());
+
+        $updateData = [
+            'page'         => 2,
+            'title'        => 'update tit',
+            'desc'         => 'update desc',
+            'content'      => 'update content',
+            'html_content' => 'update html_content',
+        ];
+
+        $res = $this->updateNote(1, $updateData);
+        $res->assertStatus(200);
+
+        $this->assertDatabaseHas((new Note())->getTable(), $updateData + ['id' => 1]);
+    }
 }
