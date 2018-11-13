@@ -109,7 +109,7 @@ return [
     ],
     'string'               => ':attribute只能是字符串啊',
     'timezone'             => 'The :attribute must be a valid zone.',
-    'unique'               => 'The :attribute has already been taken.',
+    'unique'               => ':attribute千万不能重复啊',
     'uploaded'             => 'The :attribute failed to upload.',
     'url'                  => 'The :attribute format is invalid.',
 

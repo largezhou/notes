@@ -79,4 +79,29 @@ class TagTest extends TestCase
             'target_type' => 'notes',
         ]);
     }
+
+    protected function updateTag($id, $data = [])
+    {
+        return $this->json('put', route('tags.update', ['tag' => $id]), $data);
+    }
+
+    public function testUpdateTag()
+    {
+        $this->login();
+
+        create(Tag::class, ['name' => 'tag1']);
+        create(Tag::class, ['name' => 'tag2']);
+
+        $res = $this->updateTag(1, ['name' => 'tag2']);
+        $res->assertStatus(422);
+        $this->assertJsonContains('千万不能重复啊', $res->getContent());
+
+        $this->updateTag(1, ['name' => 'tag1'])->assertStatus(204);
+
+        $this->updateTag(1, ['name' => 'updated'])->assertStatus(204);
+        $this->assertDatabaseHas('tags', [
+            'id'   => 1,
+            'name' => 'updated',
+        ]);
+    }
 }
