@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Http\Request;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -40,5 +41,12 @@ class AuthTest extends TestCase
             'password' => '000000',
         ]);
         $res->assertStatus(200)->assertSee('token')->assertSee('expires_in');
+    }
+
+    public function testLogout()
+    {
+        $this->login();
+        $this->json('post', route('logout'), ['token' => $this->token])->assertStatus(204);
+        $this->json('post', route('logout'))->assertStatus(401);
     }
 }

@@ -12,12 +12,16 @@ abstract class TestCase extends BaseTestCase
 {
     use CreatesApplication;
 
+    protected $user;
+    protected $token;
+
     protected function login(User $user = null)
     {
         $user = $user ?: create(User::class);
         $this->actingAs($user);
 
-        return $user;
+        $this->user = $user;
+        $this->token = auth()->tokenById($user->id);
     }
 
     /**

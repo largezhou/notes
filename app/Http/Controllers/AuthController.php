@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Http\Resources\UserResource;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Routing\Controller;
 
 class AuthController extends Controller
 {
     use AuthenticatesUsers;
+
+    public function __construct()
+    {
+    }
 
     public function login(Request $request)
     {
@@ -37,7 +39,7 @@ class AuthController extends Controller
     {
         auth()->logout();
 
-        return response('', 204);
+        return $this->noContent();
     }
 
     public function refresh()
