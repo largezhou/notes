@@ -27,3 +27,5 @@ Route::resource('notes', 'NoteController')->except(['store', 'create', 'edit']);
 Route::post('books/{book}/notes', 'NoteController@store')->name('notes.store');
 
 Route::resource('tags', 'TagController')->except(['store', 'show', 'create', 'edit']);
+
+Route::post('image', 'ImageController@store')->name('images.store');
