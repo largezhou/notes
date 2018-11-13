@@ -13,6 +13,6 @@ class BookFilter extends Filter
      */
     protected function recent()
     {
-        $this->builder = $this->builder->limit(Book::VERY_RECENT_COUNT);
+        $this->builder->limit(Book::VERY_RECENT_COUNT);
     }
 }

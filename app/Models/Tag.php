@@ -4,6 +4,8 @@ namespace App\Models;
 
 class Tag extends Model
 {
+    const HOT_COUNT = 10;
+
     public $timestamps = false;
 
     public $fillable = ['name'];
@@ -29,5 +31,10 @@ class Tag extends Model
         }, $new);
 
         return [$exists, $new];
+    }
+
+    public function targets()
+    {
+        return $this->hasMany(ModelTag::class);
     }
 }

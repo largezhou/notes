@@ -25,3 +25,5 @@ Route::resource('books', 'BookController');
 Route::delete('deleted-notes/{id}', 'NoteController@forceDestroy')->name('notes.force_destroy');
 Route::resource('notes', 'NoteController')->except('store');
 Route::post('books/{book}/notes', 'NoteController@store')->name('notes.store');
+
+Route::resource('tags', 'TagController')->except('store');

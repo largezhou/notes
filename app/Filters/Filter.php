@@ -61,7 +61,7 @@ abstract class Filter
     {
         // 只有在登录的情况下，才能启用编辑模式
         if (auth()->check()) {
-            $this->builder = $this->builder->withTrashed();
+            $this->builder->withTrashed();
         }
     }
 
