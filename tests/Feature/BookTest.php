@@ -76,7 +76,7 @@ class BookTest extends TestCase
         return $this->json('post', route('books.store'), $book);
     }
 
-    public function testAddBook()
+    public function testCreateBook()
     {
         $this->login();
 
@@ -108,6 +108,7 @@ class BookTest extends TestCase
             ->assertSee('id');
 
         $seeData = array_except($book, ['cover']);
+        $seeData['cover'] = '/uploads/' . md5_file($book['cover']) . '.jpg';
         $seeData['deleted_at'] = null;
         $this->assertDatabaseHas((new Book)->getTable(), $seeData);
     }
