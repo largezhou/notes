@@ -49,4 +49,11 @@ class AuthTest extends TestCase
         $this->json('post', route('logout'), ['token' => $this->token])->assertStatus(204);
         $this->json('post', route('logout'))->assertStatus(401);
     }
+
+    public function testGetInfo()
+    {
+        $this->json('get', route('info'))->assertStatus(401);
+        $this->login();
+        $this->json('get', route('info'))->assertStatus(200)->assertJson(['name' => $this->user->username]);
+    }
 }
