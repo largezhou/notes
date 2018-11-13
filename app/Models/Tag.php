@@ -15,7 +15,14 @@ class Tag extends Model
         return $this->morphedByMany(Note::class, 'target', 'model_tags');
     }
 
-    public static function createTags($data)
+    /**
+     * 分离数据中的 已存在标签 和 新标签
+     *
+     * @param $data
+     *
+     * @return array [$exists, $new]
+     */
+    public static function separateTags($data)
     {
         $data = array_map(function ($d) {
             return is_array($d) ? $d['name'] : $d;

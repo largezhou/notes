@@ -24,7 +24,7 @@ class Note extends Model
 
     public function handleSyncTags($tags)
     {
-        list($exists, $new) = Tag::createTags($tags);
+        list($exists, $new) = Tag::separateTags($tags);
         $this->tags()->sync(array_keys($exists));
         $this->tags()->createMany($new);
     }
