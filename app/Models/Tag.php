@@ -44,4 +44,11 @@ class Tag extends Model
     {
         return $this->hasMany(ModelTag::class);
     }
+
+    public function delete()
+    {
+        \DB::beginTransaction();
+        $this->targets()->delete();
+        return parent::delete();
+    }
 }

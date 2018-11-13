@@ -58,4 +58,25 @@ class TagTest extends TestCase
         $this->getTags(['q' => 'test'])
             ->assertJsonCount(3);
     }
+
+    public function testDestroyTag()
+    {
+        $note = create(Note::class);
+        $tag = create(Tag::class);
+        $note->tags()->attach($tag->id);
+
+        $this->json('delete', route('tags.destroy', ['tag' => 1]))
+            ->assertStatus(401);
+
+        $this->login();
+        $this->json('delete', route('tags.destroy', ['tag' => 1]))
+            ->assertStatus(204);
+
+        $this->assertDatabaseMissing('tags', ['id' => 1]);
+        $this->assertDatabaseMissing('model_tags', [
+            'tag_id'      => 1,
+            'target_id'   => $note->id,
+            'target_type' => 'notes',
+        ]);
+    }
 }

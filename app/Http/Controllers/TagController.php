@@ -15,4 +15,11 @@ class TagController extends Controller
 
         return TagResource::collection($tags);
     }
+
+    public function destroy(Tag $tag)
+    {
+        $tag->delete();
+
+        return $this->noContent();
+    }
 }
