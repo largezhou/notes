@@ -21,6 +21,10 @@ class TagFilter extends Filter
 
     protected function q($value)
     {
+        if (empty($value)) {
+            return;
+        }
 
+        $this->builder->where('name', 'like', "%{$value}%")->orderBy('name', 'asc');
     }
 }

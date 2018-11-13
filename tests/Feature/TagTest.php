@@ -23,11 +23,13 @@ class TagTest extends TestCase
         $tags = create(Tag::class, [], 20);
         create(Note::class, [], 10);
 
+        // 测试获取所有标签
+        $this->getTags()->assertStatus(200)->assertJsonCount(20);
+
+        // 测试获取热门标签
         $tags[0]->notes()->attach([1, 2, 3, 4, 5]);
         $tags[1]->notes()->attach([1, 2, 3]);
         $tags[2]->notes()->attach([1, 2, 3, 4, 5, 6, 7]);
-
-        $this->getTags()->assertStatus(200)->assertJsonCount(20);
 
         $this->getTags(['scope' => 'hot'])
             ->assertJsonCount(Tag::HOT_COUNT)
@@ -45,5 +47,15 @@ class TagTest extends TestCase
                     'name' => $tags[1]->name,
                 ]),
             ]);
+
+        // 测试搜索标签
+        create(Tag::class, ['name' => 'test 1']);
+        create(Tag::class, ['name' => '2 test']);
+        create(Tag::class, ['name' => '3 test 3']);
+
+        $this->getTags(['q' => ''])
+            ->assertJsonCount(23);
+        $this->getTags(['q' => 'test'])
+            ->assertJsonCount(3);
     }
 }
