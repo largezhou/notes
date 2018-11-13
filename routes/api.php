@@ -14,9 +14,9 @@
 Route::group([
     'prefix' => 'auth',
 ], function () {
-    Route::post('login', 'AuthController@login');
-    Route::post('logout', 'AuthController@logout')->middleware('auth');
-    Route::get('info', 'AuthController@info')->middleware('auth');
+    Route::post('login', 'AuthController@login')->name('login');
+    Route::post('logout', 'AuthController@logout')->middleware('auth')->name('logout');
+    Route::get('info', 'AuthController@info')->middleware('auth')->name('info');
 });
 
 Route::delete('deleted-books/{id}', 'BookController@forceDestroy')->name('books.force_destroy');
