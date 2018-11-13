@@ -48,7 +48,12 @@ class Tag extends Model
     public function delete()
     {
         \DB::beginTransaction();
+
         $this->targets()->delete();
-        return parent::delete();
+        $res = parent::delete();
+
+        \DB::commit();
+
+        return $res;
     }
 }
