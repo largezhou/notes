@@ -3,14 +3,13 @@
 namespace App\Filters;
 
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Request;
 
 abstract class Filter
 {
     /**
-     * @var Request;
+     * @var array;
      */
-    protected $request;
+    protected $data;
     /**
      * @var Builder
      */
@@ -18,9 +17,13 @@ abstract class Filter
 
     protected $filters = [];
 
-    public function __construct(Request $request)
+    public function __construct($data = null)
     {
-        $this->request = $request;
+        if ($data === null) {
+            $data = request()->all();
+        }
+
+        $this->data = $data;
     }
 
     /**
@@ -51,7 +54,7 @@ abstract class Filter
      */
     protected function getFilters()
     {
-        return $this->request->only($this->filters);
+        return array_only($this->data, $this->filters);
     }
 
     /**
@@ -74,7 +77,7 @@ abstract class Filter
 
     protected function sortField($field)
     {
-        if (!($type = $this->request->get('_sort_type'))) {
+        if (!($type = array_get($this->data, '_sort_type'))) {
             return;
         }
 

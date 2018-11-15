@@ -22,7 +22,7 @@ class FilterTest extends TestCase
         Book::unguard();
         Book::find(2)->update(['deleted_at' => Carbon::now()]);
 
-        mock_request(['only' => ['edit_mode' => null]]);
+        mock_request(['all' => ['edit_mode' => null]]);
 
         $books = Book::filter(app(BookFilter::class))->get();
 

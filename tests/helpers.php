@@ -27,4 +27,8 @@ function mock_request($mock)
     app()->bind(Request::class, function ($app) use ($mock) {
         return \Mockery::mock(Request::class, $mock);
     });
+
+    app()->bind('request', function ($app) use ($mock) {
+        return \Mockery::mock(Request::class, $mock);
+    });
 }

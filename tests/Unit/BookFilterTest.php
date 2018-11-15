@@ -18,9 +18,9 @@ class BookFilterTest extends TestCase
     {
         create(Book::class, [], 10);
 
-        $request = \Mockery::mock(Request::class, ['only' => ['recent' => null]]);
+        mock_request(['all' => ['recent' => null]]);
 
-        $books = Book::filter(new BookFilter($request))->get();
+        $books = Book::filter(app(BookFilter::class))->get();
 
         $this->assertEquals(5, $books->count());
     }

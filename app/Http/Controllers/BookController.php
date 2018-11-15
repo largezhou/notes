@@ -8,6 +8,7 @@ use App\Http\Requests\BookRequest;
 use App\Http\Resources\BookResource;
 use App\Http\Resources\NoteResource;
 use App\Models\Book;
+use Illuminate\Http\Request;
 
 class BookController extends Controller
 {
@@ -29,9 +30,17 @@ class BookController extends Controller
         return $this->created(['id' => $book->id]);
     }
 
-    public function show(Book $book)
+    public function show(Request $request, Book $book)
     {
-        $notes = $book->notes()->filter(app(NoteFilter::class))->orderBy('created_at', 'desc')->get();
+        $data = array_merge(
+            [
+                '_sort_field' => 'page',
+                '_sort_type'  => 'desc',
+            ],
+            $request->all()
+        );
+
+        $notes = $book->notes()->filter(new NoteFilter($data))->orderBy('created_at', 'desc')->get();
         $book->setAttribute('notes_count', $notes->count());
 
         return [

@@ -190,8 +190,13 @@ class BookTest extends TestCase
     {
         $this->prepareNotes();
 
-        // 默认添加时间倒序
-        $this->assertOrderBy($this->getBook(4), 'created_at', 'desc', 'notes');
+        // 默认笔记所属页数倒序
+        $this->assertOrderBy($this->getBook(4), 'page', 'desc', 'notes');
+
+        $this->assertOrderBy($this->getBook(4, [
+            '_sort_field' => 'page',
+            '_sort_type'  => 'asc',
+        ]), 'page', 'asc', 'notes');
 
         $this->assertOrderBy($this->getBook(4, [
             '_sort_field' => 'created_at',
@@ -199,14 +204,9 @@ class BookTest extends TestCase
         ]), 'created_at', 'dsc', 'notes');
 
         $this->assertOrderBy($this->getBook(4, [
-            '_sort_field' => 'page',
+            '_sort_field' => 'created_at',
             '_sort_type'  => 'desc',
-        ]), 'page', 'desc', 'notes');
-
-        $this->assertOrderBy($this->getBook(4, [
-            '_sort_field' => 'page',
-            '_sort_type'  => 'asc',
-        ]), 'page', 'asc', 'notes');
+        ]), 'created_at', 'desc', 'notes');
     }
 
     protected function updateBook($id = null, $data = [])
