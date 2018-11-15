@@ -17,7 +17,7 @@ class BookResource extends JsonResource
             'cover'       => $this->cover ? url($this->cover) : '',
             'read'        => $this->read,
             'total'       => $this->total,
-            'notes_count' => $this->when($this->notes_count, $this->notes_count),
+            'notes_count' => $this->when(isset($this->notes_count), $this->notes_count),
         ];
     }
 }
