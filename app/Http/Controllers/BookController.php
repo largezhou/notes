@@ -13,7 +13,7 @@ class BookController extends Controller
 {
     public function index()
     {
-        $books = Book::orderBy('updated_at', 'desc')->filter(app(BookFilter::class))->get();
+        $books = Book::withCount('notes')->orderBy('updated_at', 'desc')->filter(app(BookFilter::class))->get();
 
         return BookResource::collection($books);
     }
