@@ -182,6 +182,7 @@ class BookTest extends TestCase
 
         // 笔记编辑模式显示所有
         $this->getBook(3, ['edit_mode' => 1])
+            ->assertJsonFragment(['notes_count' => 10])
             ->assertJsonCount(10, 'notes');
     }
 

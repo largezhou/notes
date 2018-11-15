@@ -32,6 +32,7 @@ class BookController extends Controller
     public function show(Book $book)
     {
         $notes = $book->notes()->filter(app(NoteFilter::class))->orderBy('created_at', 'desc')->get();
+        $book->setAttribute('notes_count', $notes->count());
 
         return [
             'book'  => BookResource::make($book),
