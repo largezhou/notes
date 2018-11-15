@@ -44,6 +44,9 @@ class BookRequest extends FormRequest
         $this->hasTotal = $this->has('total');
 
         $book = $this->getBook();
+        if (!$book) {
+            return;
+        }
 
         if ($this->hasRead && !$this->hasTotal) {
             $key = 'total';
@@ -75,12 +78,12 @@ class BookRequest extends FormRequest
             $rules['read'] = 'bail|nullable|integer|min:0|lte:total';
         }
 
-        if ($this->hasTotal && !$this->hasRead) {
-            $rules['total'] = 'bail|required|integer|between:1,10000|gte:read';
-        }
-
         switch ($this->method()) {
             case 'PUT':
+                if ($this->hasTotal && !$this->hasRead) {
+                    $rules['total'] = 'bail|required|integer|between:1,10000|gte:read';
+                }
+
                 $rules = array_only($rules, $this->keys());
                 break;
         }
