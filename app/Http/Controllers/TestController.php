@@ -10,8 +10,6 @@ class TestController extends Controller
 {
     public function test(Request $request, $path = null)
     {
-        Tag::truncate();
-        $tags = factory(Tag::class, 50)->create()->pluck('id');
-        dd($tags);
+        dd(url('/uploads/e304475b06530d7a514b2353ce2ab3a7.jpg'));
     }
 }

@@ -16,7 +16,7 @@ class BookResource extends JsonResource
             'updated_at' => $this->updated_at,
             'deleted_at' => $this->deleted_at,
             'hidden'     => $this->hidden,
-            'cover'      => $this->cover,
+            'cover'      => $this->cover ? url($this->cover) : '',
             'read'       => $this->read,
             'total'      => $this->total,
         ];
