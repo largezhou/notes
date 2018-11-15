@@ -12,7 +12,7 @@ class TagController extends Controller
 {
     public function index(TagFilter $tagFilter)
     {
-        $tags = Tag::filter($tagFilter)->get();
+        $tags = Tag::withCount('targets')->filter($tagFilter)->get();
 
         return TagResource::collection($tags);
     }
