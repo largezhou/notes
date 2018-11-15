@@ -72,7 +72,7 @@ class BookRequest extends FormRequest
         // 避免 total 没有验证成功时，验证 read 的 lte 规则，会报错的问题
         $total = $this->get('total');
         if (isset($total) && is_numeric($total)) {
-            $rules['read'] = 'bail|required|integer|min:0|lte:total';
+            $rules['read'] = 'bail|nullable|integer|min:0|lte:total';
         }
 
         if ($this->hasTotal && !$this->hasRead) {

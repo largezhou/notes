@@ -103,13 +103,16 @@ class BookTest extends TestCase
             ->assertStatus(422)
             ->assertSee(json_encode('封面不是图片不行的'));
 
-        $res = $this->postCreateBook($book);
+        $input = $book;
+        $input['read'] = null;
+        $res = $this->postCreateBook($input);
         $res->assertStatus(201)
             ->assertSee('id');
 
-        $seeData = array_except($book, ['cover']);
-        $seeData['cover'] = '/uploads/' . md5_file($book['cover']) . '.jpg';
+        $seeData = array_except($input, ['cover']);
+        $seeData['cover'] = '/uploads/' . md5_file($input['cover']) . '.jpg';
         $seeData['deleted_at'] = null;
+        $seeData['read'] = 0;
         $this->assertDatabaseHas((new Book)->getTable(), $seeData);
     }
 

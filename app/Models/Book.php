@@ -22,4 +22,9 @@ class Book extends Model
     {
         return $this->hasMany(Note::class);
     }
+
+    public function setReadAttribute($value)
+    {
+        $this->attributes['read'] = $value ?? 0;
+    }
 }

@@ -18,9 +18,9 @@ class CreateBooksTable extends Migration
             $table->string('title');
             $table->boolean('hidden')->default(false);
             $table->string('cover');
-            $table->smallInteger('read');
+            $table->smallInteger('read')->default(0);
             $table->smallInteger('total');
-            $table->timestamp('started_at');
+            $table->timestamp('started_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
