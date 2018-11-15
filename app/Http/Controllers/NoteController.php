@@ -9,7 +9,6 @@ use App\Http\Resources\BookResource;
 use App\Http\Resources\NoteResource;
 use App\Models\Book;
 use App\Models\Note;
-use App\Models\Tag;
 use Illuminate\Http\Request;
 
 class NoteController extends Controller
@@ -21,6 +20,7 @@ class NoteController extends Controller
             ->with(['book' => function ($query) {
                 $query->withTrashed();
             }])
+            ->with('tags')
             ->whereHas('book', function ($query) use ($request) {
                 $query->filter(app(BookFilter::class)->only(['edit_mode']));
             })
@@ -31,8 +31,9 @@ class NoteController extends Controller
 
     public function show(Note $note)
     {
-        $book = $note->book;
+        $book = $note->book()->withCount('notes')->first();
         abort_if(!$book, 404);
+        $note->load('tags');
 
         return [
             'note' => NoteResource::make($note),

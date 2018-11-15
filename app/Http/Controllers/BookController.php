@@ -40,7 +40,7 @@ class BookController extends Controller
             $request->all()
         );
 
-        $notes = $book->notes()->filter(new NoteFilter($data))->orderBy('created_at', 'desc')->get();
+        $notes = $book->notes()->with('tags')->filter(new NoteFilter($data))->orderBy('created_at', 'desc')->get();
         $book->setAttribute('notes_count', $notes->count());
 
         return [
