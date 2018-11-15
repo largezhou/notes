@@ -45,7 +45,7 @@ class Controller extends BaseController
     }
 
     /**
-     * 保存文件到本地，并返回 键 => 保存路径 的键值对
+     * 保存文件到本地，并把请求中的数据的文件换成保存后的本地路径
      *
      * @param Request $request
      *
@@ -67,6 +67,8 @@ class Controller extends BaseController
             return $driver->url($path);
         }, $files);
 
-        return $files;
+        $data = array_merge($request->all(), $files);
+
+        return $data;
     }
 }

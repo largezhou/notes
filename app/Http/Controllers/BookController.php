@@ -21,9 +21,7 @@ class BookController extends Controller
 
     public function store(BookRequest $request)
     {
-        $files = $this->handleUploadFile($request);
-        $data = $request->all();
-        $data = array_merge($data, $files);
+        $data = $this->handleUploadFile($request);
 
         $book = Book::create($data);
 
@@ -66,7 +64,11 @@ class BookController extends Controller
     public function update(BookRequest $request, $id)
     {
         $book = $request->getBook();
-        $book->update($request->all());
+
+        $data = $this->handleUploadFile($request);
+        $book->update($data);
+
+        $book->setAttribute('notes_count', $book->notes()->count());
 
         return BookResource::make($book);
     }
