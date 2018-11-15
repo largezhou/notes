@@ -12,7 +12,7 @@ class TagFilter extends Filter
     {
         switch ($value) {
             case 'hot':
-                $this->builder->withCount('targets')->orderBy('targets_count', 'desc')->limit(Tag::HOT_COUNT);
+                $this->builder->limit(Tag::HOT_COUNT);
                 break;
             default:
                 // null

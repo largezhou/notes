@@ -31,20 +31,23 @@ class TagTest extends TestCase
         $tags[1]->notes()->attach([1, 2, 3]);
         $tags[2]->notes()->attach([1, 2, 3, 4, 5, 6, 7]);
 
-        $this->getTags(['scope' => 'hot'])
-            ->assertJsonCount(Tag::HOT_COUNT)
+        $res = $this->getTags(['scope' => 'hot']);
+        $res->assertJsonCount(Tag::HOT_COUNT)
             ->assertSeeInOrder([
                 json_encode([
-                    'id'   => $tags[2]->id,
-                    'name' => $tags[2]->name,
+                    'id'    => $tags[2]->id,
+                    'name'  => $tags[2]->name,
+                    'count' => '7',
                 ]),
                 json_encode([
-                    'id'   => $tags[0]->id,
-                    'name' => $tags[0]->name,
+                    'id'    => $tags[0]->id,
+                    'name'  => $tags[0]->name,
+                    'count' => '5',
                 ]),
                 json_encode([
-                    'id'   => $tags[1]->id,
-                    'name' => $tags[1]->name,
+                    'id'    => $tags[1]->id,
+                    'name'  => $tags[1]->name,
+                    'count' => '3',
                 ]),
             ]);
 
