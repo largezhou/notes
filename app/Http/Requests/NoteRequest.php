@@ -26,7 +26,7 @@ class NoteRequest extends FormRequest
         if ($this->isMethod('post')) {
             $book = $this->route('book');
         } else {
-            $book = $this->getNote()->book;
+            $book = $this->getNote()->book()->showAll()->first();
         }
 
         $rules = [
