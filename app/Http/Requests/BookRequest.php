@@ -30,7 +30,9 @@ class BookRequest extends FormRequest
 
     public function validationData()
     {
-        $this->handleHasReadOrTotal();
+        if ($this->isMethod('put')) {
+            $this->handleHasReadOrTotal();
+        }
 
         return parent::validationData();
     }
@@ -44,9 +46,6 @@ class BookRequest extends FormRequest
         $this->hasTotal = $this->has('total');
 
         $book = $this->getBook();
-        if (!$book) {
-            return;
-        }
 
         if ($this->hasRead && !$this->hasTotal) {
             $key = 'total';
@@ -72,19 +71,22 @@ class BookRequest extends FormRequest
             'hidden'     => 'filled|boolean',
         ];
 
-        // 避免 total 没有验证成功时，验证 read 的 lte 规则，会报错的问题
-        $total = $this->get('total');
-        if (isset($total) && is_numeric($total)) {
-            $rules['read'] = 'bail|nullable|integer|min:0|lte:total';
-        }
-
         switch ($this->method()) {
             case 'PUT':
+                // 避免 total 没有验证成功时，验证 read 的 lte 规则，会报错的问题
+                $total = $this->get('total');
+                if (isset($total) && is_numeric($total)) {
+                    $rules['read'] = 'bail|nullable|integer|min:0|lte:total';
+                }
+
                 if ($this->hasTotal && !$this->hasRead) {
                     $rules['total'] = 'bail|required|integer|between:1,10000|gte:read';
                 }
 
                 $rules = array_only($rules, $this->keys());
+                break;
+            case 'POST':
+                $rules['read'] = 'bail|nullable|integer|min:0|lte:total';
                 break;
         }
 
