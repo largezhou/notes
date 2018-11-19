@@ -6,12 +6,13 @@ trait BookActions
 {
     /**
      * @param array $params
+     * @param bool  $editMode
      *
      * @return \Illuminate\Foundation\Testing\TestResponse
      */
-    protected function getBooks($params = [])
+    protected function getBooks($params = [], $editMode = false)
     {
-        return $this->json('get', route('books.index'), $params);
+        return $this->json('get', route('books.index'), $params, ['Edit-Mode' => $editMode]);
     }
 
     /**
@@ -30,9 +31,9 @@ trait BookActions
      *
      * @return \Illuminate\Foundation\Testing\TestResponse
      */
-    protected function destroyBook($id = 1, $editMode = true)
+    protected function destroyBook($id = 1, $editMode = false)
     {
-        return $this->json('delete', route('books.destroy', ['book' => $id]) . ($editMode ? '?edit_mode=1' : ''));
+        return $this->json('delete', route('books.destroy', ['book' => $id]), [], ['Edit-Mode' => $editMode]);
     }
 
     /**

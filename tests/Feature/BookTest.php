@@ -128,7 +128,7 @@ class BookTest extends TestCase
             ->assertSee('hidden')
             ->assertSee('deleted_at');
 
-        $this->getBooks(['edit_mode' => 1])
+        $this->getBooks([], true)
             ->assertJsonCount(10);
     }
 
@@ -137,17 +137,17 @@ class BookTest extends TestCase
         $this->prepareBooks();
 
         // 软删除和隐藏的 404
-        $this->destroyBook(1)->assertStatus(404);
-        $this->destroyBook(2)->assertStatus(404);
+        $this->destroyBook(1, true)->assertStatus(404);
+        $this->destroyBook(2, true)->assertStatus(404);
 
         // 正常的，401
-        $this->destroyBook(3)->assertStatus(401);
+        $this->destroyBook(3, true)->assertStatus(401);
 
         $this->login();
         Model::clearBootedModels();
 
         // 已经软删除的在非编辑模式下无法查询到
-        $this->destroyBook(1, false)->assertStatus(404);
+        $this->destroyBook(1)->assertStatus(404);
         // 编辑模式查询到也只是软删除
         $this->destroyBook(1, true)->assertStatus(204);
         $this->assertDatabaseHas('books', [

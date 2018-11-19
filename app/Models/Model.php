@@ -20,7 +20,7 @@ class Model extends \Illuminate\Database\Eloquent\Model
         // 如果已登录，且请求中有 edit_mode 字段，则去掉软删除的全局作用域
         // 这里一定要放在 parent::boot 之前，因为应用 全局作用域 是有顺序的
         static::addGlobalScope('withTrashed', function (Builder $builder) {
-            if (auth()->check() && request()->has('edit_mode')) {
+            if (auth()->check() && request()->header('Edit-Mode')) {
                 $builder->withoutGlobalScope(SoftDeletingScope::class);
             }
         });
