@@ -28,4 +28,18 @@ class Note extends Model
         $this->tags()->sync(array_keys($exists));
         $this->tags()->createMany($new);
     }
+
+    public function delete()
+    {
+        \DB::beginTransaction();
+
+        if ($this->forceDeleting) {
+            $this->tags()->detach();
+        }
+
+        $res = parent::delete();
+        \DB::commit();
+
+        return $res;
+    }
 }

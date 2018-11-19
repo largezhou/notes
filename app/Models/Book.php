@@ -27,4 +27,18 @@ class Book extends Model
     {
         $this->attributes['read'] = $value ?? 0;
     }
+
+    public function delete()
+    {
+        \DB::beginTransaction();
+
+        if ($this->forceDeleting) {
+            $this->notes->each->forceDelete();
+        }
+
+        $res = parent::delete();
+        \DB::commit();
+
+        return $res;
+    }
 }

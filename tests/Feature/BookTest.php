@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\Book;
+use App\Models\Note;
+use App\Models\Tag;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Http\UploadedFile;
@@ -148,15 +150,23 @@ class BookTest extends TestCase
         $this->login();
 
         $this->prepareBook();
-
-        $this->forceDestroyBook(1)
-            ->assertStatus(204);
-
-        $this->assertDatabaseMissing((new Book())->getTable(), ['id' => 1]);
+        Book::showAll()->find(1)->notes()->save(make(Note::class));
+        Note::find(1)->tags()->save(make(Tag::class));
 
         // 没有被软删除的不能彻底删除
         $this->forceDestroyBook(2)
             ->assertStatus(404);
+
+        $this->forceDestroyBook(1)
+            ->assertStatus(204);
+
+        $this->assertDatabaseMissing('books', ['id' => 1]);
+        $this->assertDatabaseMissing('notes', ['id' => 1]);
+        $this->assertDatabaseMissing('model_tags', [
+            'tag_id'      => 1,
+            'target_id'   => 1,
+            'target_type' => 'notes',
+        ]);
     }
 
     protected function getBook($id = null, $params = [])

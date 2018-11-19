@@ -189,19 +189,28 @@ class NoteTest extends TestCase
 
     public function testForceDestroyNote()
     {
-        create(Note::class);
+        $note = create(Note::class);
+        $tag = make(Tag::class);
+        $note->tags()->save($tag);
 
-        $delete = function ($id) {
+        $forceDestroy = function ($id) {
             return $this->json('delete', route('notes.force_destroy', ['id' => $id]));
         };
 
-        $delete(1)->assertStatus(401);
+        $forceDestroy(1)->assertStatus(401);
 
         $this->login();
 
-        $delete(1)->assertStatus(404);
+        $forceDestroy(1)->assertStatus(404);
+
         $this->destroyNote(1);
-        $delete(1)->assertStatus(204);
+        $forceDestroy(1)->assertStatus(204);
+        $this->assertDatabaseMissing('notes', ['id' => 1]);
+        $this->assertDatabaseMissing('model_tags', [
+            'target_id'   => 1,
+            'target_type' => 'notes',
+            'tag_id'      => 1,
+        ]);
     }
 
     protected function updateNote($id, $data = [])
