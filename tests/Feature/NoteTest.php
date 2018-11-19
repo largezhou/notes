@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Book;
+use App\Models\Model;
 use App\Models\Note;
 use App\Models\Tag;
 use Carbon\Carbon;
@@ -10,41 +11,40 @@ use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Traits\RequestActions;
 
 class NoteTest extends TestCase
 {
     use DatabaseMigrations;
-
-    protected function getNotes($params = [])
-    {
-        return $this->json('get', route('notes.index'), $params);
-    }
+    use RequestActions;
 
     public function testGetNotes()
     {
+        $this->prepareBooks();
         $this->prepareNotes();
 
-        $res = $this->getNotes();
-        $res->assertStatus(200)
+        // 没有登录的情况下，即使是 编辑模式，也不能看到软删除的和隐藏的
+        // 有 1 本书隐藏，1 本书软删除，每本书的 10 条笔记中，都有 1 条软删除的和隐藏的
+        // 所以总数是 64 条
+        $this->getResources('notes', [], true)
+            ->assertStatus(200)
             ->assertJsonCount(15, 'data')
             ->assertDontSee('hidden')
             ->assertDontSee('deleted_at')
-            ->assertJsonFragment(['total' => 78]);
-    }
+            ->assertJsonFragment(['total' => 64]);
 
-    public function testAuthGetNotes()
-    {
         $this->login();
-        $this->prepareNotes();
+        Model::clearBootedModels();
 
-        // 有一个软删除的书，和一个软删除的笔记，所以总数应该是89
-        $res = $this->getNotes();
-        $res->assertJsonFragment(['total' => 89])
+        // 登录后可以看到隐藏的，总数为：9 * 9
+        $this->getResources('notes')
+            ->assertJsonFragment(['total' => 81])
             ->assertSee('hidden')
             ->assertSee('deleted_at');
 
-        $res = $this->getNotes(['edit_mode' => 1]);
-        $res->assertJsonFragment(['total' => 100]);
+        // 编辑模式可以看到所有
+        $this->getResources('notes', [], true)
+            ->assertJsonFragment(['total' => 100]);
     }
 
     protected function getNote($id)
