@@ -38,10 +38,6 @@ class BookTest extends TestCase
         $this->getBook(2)->assertStatus(404);
         $this->getBook(3)->assertStatus(200)->assertDontSee('hidden')->assertDontSee('deleted_at');
 
-        // 删除，由于删除书，使用了模型的绑定，所以查询模型会先于权限判定，所以要使用一个没有隐藏且没有软删除的
-        $this->destroyBook(10)
-            ->assertStatus(401);
-
         // 彻底删除
         $this->forceDestroyBook()
             ->assertStatus(401);
@@ -138,19 +134,34 @@ class BookTest extends TestCase
 
     public function testDestroyBook()
     {
-        $this->login();
-
         $this->prepareBooks();
 
-        // 已经软删除的无法查询到
-        $this->destroyBook(1)
-            ->assertStatus(404);
+        // 软删除和隐藏的 404
+        $this->destroyBook(1)->assertStatus(404);
+        $this->destroyBook(2)->assertStatus(404);
+
+        // 正常的，401
+        $this->destroyBook(3)->assertStatus(401);
+
+        $this->login();
+        Model::clearBootedModels();
+
+        // 已经软删除的在非编辑模式下无法查询到
+        $this->destroyBook(1, false)->assertStatus(404);
+        // 编辑模式查询到也只是软删除
+        $this->destroyBook(1, true)->assertStatus(204);
+        $this->assertDatabaseHas('books', [
+            'id'         => 1,
+            'deleted_at' => Book::find(1)->deleted_at,
+        ]);
 
         // 正常软删除
         $this->destroyBook(2)
             ->assertStatus(204);
-
-        $this->assertDatabaseHas((new Book())->getTable(), ['id' => 2, 'deleted_at' => Carbon::now()]);
+        $this->assertDatabaseHas('books', [
+            'id'         => 2,
+            'deleted_at' => Carbon::now(),
+        ]);
     }
 
     public function testForceDestroyBook()

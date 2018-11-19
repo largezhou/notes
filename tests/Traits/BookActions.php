@@ -25,13 +25,14 @@ trait BookActions
     }
 
     /**
-     * @param int $id
+     * @param int  $id
+     * @param bool $editMode
      *
      * @return \Illuminate\Foundation\Testing\TestResponse
      */
-    protected function destroyBook($id = 1)
+    protected function destroyBook($id = 1, $editMode = true)
     {
-        return $this->json('delete', route('books.destroy', ['book' => $id]));
+        return $this->json('delete', route('books.destroy', ['book' => $id]) . ($editMode ? '?edit_mode=1' : ''));
     }
 
     /**
