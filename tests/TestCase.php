@@ -5,6 +5,7 @@ namespace Tests;
 use App\Models\Book;
 use App\Models\Note;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Foundation\Testing\TestResponse;
 
@@ -64,25 +65,22 @@ abstract class TestCase extends BaseTestCase
     }
 
     /**
-     * 每本书生成10条笔记，第3本书的前两条笔记分别软删除和隐藏
+     * 每本书生成10条笔记，每本书的第一个笔记为软删除的，第二个为隐藏的
      *
      * @throws \Exception
      */
     protected function prepareNotes()
     {
-        $this->prepareBooks();
+        Note::truncate();
         Book::showAll()->get()->each(function (Book $book) {
             $notesData = factory(Note::class, 10)->make()->each(function (Note $note) use ($book) {
                 $note->page = mt_rand(1, $book->read);
             });
+            $notesData[0]['deleted_at'] = Carbon::now();
+            $notesData[1]['hidden'] = true;
 
             $book->notes()->saveMany($notesData);
         });
-
-
-        $notes = Book::find(3)->notes;
-        $notes[0]->delete();
-        $notes[1]->update(['hidden' => true]);
     }
 
     /**

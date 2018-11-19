@@ -50,12 +50,13 @@ trait BookActions
     /**
      * @param int   $id
      * @param array $params
+     * @param bool  $editMode
      *
      * @return \Illuminate\Foundation\Testing\TestResponse
      */
-    protected function getBook($id = 1, $params = [])
+    protected function getBook($id = 1, $params = [], $editMode = false)
     {
-        return $this->json('get', route('books.show', ['book' => $id]), $params);
+        return $this->json('get', route('books.show', ['book' => $id]), $params, ['Edit-Mode' => $editMode]);
     }
 
     /**

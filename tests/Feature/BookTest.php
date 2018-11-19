@@ -19,34 +19,6 @@ class BookTest extends TestCase
     use DatabaseMigrations;
     use BookActions;
 
-    public function testGuestCanVisitShowAndIndexOnly()
-    {
-        $this->prepareBooks();
-
-        $res = $this->getBooks();
-        $res->assertStatus(200)
-            ->assertJsonCount(8);
-
-        // 未登录的情况下，即使传了 edit_mode 也不能看到隐藏的和软删除的
-        $this->getBooks(['edit_mode' => 1])
-            ->assertJsonCount(8)
-            ->assertDontSee('hidden')
-            ->assertDontSee('deleted_at');
-
-        // 书籍详情页
-        $this->getBook(1)->assertStatus(404);
-        $this->getBook(2)->assertStatus(404);
-        $this->getBook(3)->assertStatus(200)->assertDontSee('hidden')->assertDontSee('deleted_at');
-
-        // 彻底删除
-        $this->forceDestroyBook()
-            ->assertStatus(401);
-
-        // 更新
-        $this->updateBook()
-            ->assertStatus(401);
-    }
-
     public function testPostCreateBook()
     {
         // 未登录
@@ -199,31 +171,42 @@ class BookTest extends TestCase
 
     public function testShowBook()
     {
-        // 登录的情况下
-        $this->login();
-
+        $this->prepareBooks();
         $this->prepareNotes();
 
+        $this->getBook(1, [], true)->assertStatus(404);
+        $this->getBook(2, [], true)->assertStatus(404);
+        $this->getBook(3, [], true)
+            ->assertStatus(200)
+            ->assertDontSee('hidden')
+            ->assertDontSee('deleted_at')
+            ->assertJsonFragment(['notes_count' => 8])
+            ->assertJsonCount(8, 'notes');
+
+        // 登录的情况下
+        Model::clearBootedModels();
+        $this->login();
+
         // 软删除的
-        $this->getBook(1)
-            ->assertStatus(404);
+        $this->getBook(1)->assertStatus(404);
+        $this->getBook(1, [], true)->assertStatus(200);
 
         // 隐藏的
         $this->getBook(2)
-            ->assertSee('"hidden":"1"');
-
-        // 笔记有软删除的
-        $this->getBook(3)
+            ->assertJsonFragment(['hidden' => '1'])
+            ->assertJsonFragment(['deleted_at' => null])
+            ->assertJsonFragment(['notes_count' => 9])
             ->assertJsonCount(9, 'notes');
 
         // 笔记编辑模式显示所有
-        $this->getBook(3, ['edit_mode' => 1])
+        $this->getBook(2, [], true)
             ->assertJsonFragment(['notes_count' => 10])
             ->assertJsonCount(10, 'notes');
     }
 
     public function testBookNotesSort()
     {
+        $this->prepareBooks();
         $this->prepareNotes();
 
         // 默认笔记所属页数倒序
