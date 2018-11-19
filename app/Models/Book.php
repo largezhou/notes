@@ -15,7 +15,7 @@ class Book extends Model
      */
     const VERY_RECENT_COUNT = 5;
 
-    protected $fillable = ['title', 'total', 'read', 'started_at', 'cover', 'hidden'];
+    protected $fillable = ['title', 'total', 'read', 'started_at', 'cover', 'hidden', 'deleted_at'];
 
     public function notes()
     {

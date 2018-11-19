@@ -22,7 +22,7 @@ function raw($class, $attributes = [], $times = null)
  *
  * @param array $mock mock的数据或方法等
  */
-function mock_request($mock)
+function mock_request($mock = [])
 {
     app()->bind(Request::class, function ($app) use ($mock) {
         return \Mockery::mock(Request::class, $mock);

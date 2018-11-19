@@ -61,10 +61,8 @@ class BookController extends Controller
         return $this->noContent();
     }
 
-    public function update(BookRequest $request, $id)
+    public function update(BookRequest $request, Book $book)
     {
-        $book = $request->getBook();
-
         $data = $this->handleUploadFile($request);
         $book->update($data);
 

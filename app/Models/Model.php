@@ -53,14 +53,6 @@ class Model extends \Illuminate\Database\Eloquent\Model
 
     public function update(array $attributes = [], array $options = [])
     {
-        if (
-            array_has($attributes, 'deleted_at') &&
-            $attributes['deleted_at'] === null &&
-            trait_exists(SoftDeletes::class)
-        ) {
-            return $this->restore();
-        }
-
         return parent::update(...func_get_args());
     }
 

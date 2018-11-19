@@ -2,6 +2,7 @@
 
 use Faker\Generator as Faker;
 use Carbon\Carbon;
+use Illuminate\Http\UploadedFile;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,6 +26,14 @@ $factory->define(App\Models\User::class, function (Faker $faker) {
 });
 
 $factory->define(App\Models\Book::class, function (Faker $faker) {
+    static $cover;
+    if (!$cover) {
+        $file = UploadedFile::fake()->image('cover.jpg', 240, 320);
+        $name = md5_file($file);
+        Storage::drive('public')->putFileAs('uploads', $file, "{$name}.jpg");
+        $cover = "/uploads/{$name}.jpg";
+    }
+
     $total = mt_rand(200, 900);
     $read = mt_rand(5, $total - 100);
 
@@ -35,7 +44,7 @@ $factory->define(App\Models\Book::class, function (Faker $faker) {
         'updated_at' => $faker->dateTimeBetween('-2 months')->format('Y-m-d H:i:s'),
         'read'       => $read,
         'total'      => $total,
-        'cover'      => '',
+        'cover'      => $cover,
         'deleted_at' => null,
         'hidden'     => false,
     ];

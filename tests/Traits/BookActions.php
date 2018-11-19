@@ -62,11 +62,12 @@ trait BookActions
     /**
      * @param int   $id
      * @param array $data
+     * @param bool  $editMode
      *
      * @return \Illuminate\Foundation\Testing\TestResponse
      */
-    protected function updateBook($id = 1, $data = [])
+    protected function updateBook($id = 1, $data = [], $editMode = false)
     {
-        return $this->json('put', route('books.update', ['book' => $id]), $data);
+        return $this->json('put', route('books.update', ['book' => $id]), $data, ['Edit-Mode' => $editMode]);
     }
 }

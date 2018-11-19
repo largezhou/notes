@@ -8,25 +8,8 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class BookRequest extends FormRequest
 {
-    /**
-     * @var Book
-     */
-    protected $book;
     protected $hasRead;
     protected $hasTotal;
-
-    public function getBook()
-    {
-        if ($this->isMethod('post')) {
-            return null;
-        }
-
-        if (!$this->book) {
-            $this->book = Book::editMode()->findOrFail($this->route('book'));
-        }
-
-        return $this->book;
-    }
 
     public function validationData()
     {
@@ -45,7 +28,7 @@ class BookRequest extends FormRequest
         $this->hasRead = $this->has('read');
         $this->hasTotal = $this->has('total');
 
-        $book = $this->getBook();
+        $book = $this->route('book');
 
         if ($this->hasRead && !$this->hasTotal) {
             $key = 'total';
@@ -84,6 +67,11 @@ class BookRequest extends FormRequest
                 }
 
                 $rules = array_only($rules, $this->keys());
+
+                // 没有更新书籍封面，则 cover 字段是个字符串，且跟数据库的相同
+                if ($this->get('cover') === asset($this->route('book')->cover)) {
+                    unset($rules['cover']);
+                }
                 break;
             case 'POST':
                 $rules['read'] = 'bail|nullable|integer|min:0|lte:total';

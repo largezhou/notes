@@ -77,7 +77,6 @@ class BookTest extends TestCase
 
         $seeData = $input;
         $seeData['cover'] = '/uploads/' . md5_file($input['cover']) . '.jpg';
-        $seeData['deleted_at'] = null;
         $seeData['read'] = 0;
         $this->assertDatabaseHas('books', $seeData);
     }
@@ -230,27 +229,33 @@ class BookTest extends TestCase
 
     public function testUpdateHidden()
     {
-        $this->login();
-
         $this->prepareBooks();
 
+        $this->updateBook(1)->assertStatus(404);
+        $this->updateBook(2)->assertStatus(404);
+        $this->updateBook(3)->assertStatus(401);
+
+        Model::clearBootedModels();
+        $this->login();
+
         // 显示
-        $this->updateBook(2, ['hidden' => false]);
-        $this->assertDatabaseHas((new Book())->getTable(), ['id' => 2, 'hidden' => 0]);
+        $this->updateBook(2, ['hidden' => false])->assertStatus(200);
+        $this->assertDatabaseHas('books', ['id' => 2, 'hidden' => 0]);
 
         // 隐藏
-        $this->updateBook(2, ['hidden' => true]);
-        $this->assertDatabaseHas((new Book())->getTable(), ['id' => 2, 'hidden' => 1]);
+        $this->updateBook(2, ['hidden' => true])->assertStatus(200);
+        $this->assertDatabaseHas('books', ['id' => 2, 'hidden' => 1]);
     }
 
     public function testRestoreBook()
     {
         $this->login();
-
         $this->prepareBooks();
 
-        $this->updateBook(1, ['deleted_at' => null]);
-        $this->assertDatabaseHas((new Book())->getTable(), ['id' => 1, 'deleted_at' => null]);
+        $this->updateBook(1, ['deleted_at' => null])->assertStatus(404);
+
+        $this->updateBook(1, ['deleted_at' => null], true)->assertStatus(200);
+        $this->assertDatabaseHas('books', ['id' => 1, 'deleted_at' => null]);
     }
 
     public function testUpdateBook()
@@ -258,33 +263,74 @@ class BookTest extends TestCase
         $this->login();
         $this->prepareBooks();
 
-        $this->updateBook(1, [
-            'title' => 'update title',
-            'total' => '900',
-            'read'  => '666',
-        ])->assertStatus(200);
+        // 啥都不更新
+        $this->updateBook(3)->assertStatus(200);
 
-        $this->assertDatabaseHas((new Book())->getTable(), [
-            'title' => 'update title',
-            'total' => '900',
-            'read'  => '666',
-        ]);
+        $book = Book::find(3)->toArray();
+        $book['cover'] = asset($book['cover']);
+        unset($book['updated_at']);
+
+        // 啥都不更新
+        $this->updateBook(3, $book)->assertStatus(200);
+
+        $this->assertDatabaseHas('books', Book::find(3)->toArray());
+
+        // 更新错误的封面
+        $input = $book;
+        $input['cover'] = 'not a cover';
+        $this->seeErrorText($this->updateBook(3, $input), '不是图片不行的');
+
+        // 更新正确的封面
+        $input['cover'] = UploadedFile::fake()->image('cover.jpg');
+        $this->updateBook(3, $input)->assertStatus(200);
+        $input['cover'] = '/uploads/' . md5_file($input['cover']) . '.jpg';
+        $this->assertDatabaseHas('books', $input);
+
+        $book['cover'] = asset($input['cover']);
+
+        // 去掉 started_at
+        $input = $book;
+        $input['started_at'] = null;
+        $this->updateBook(3, $input)->assertStatus(200);
+        $this->assertDatabaseHas('books', ['id' => 3, 'started_at' => null]);
     }
 
-    public function testUpdateReadOrTotalOnly()
+    public function testUpdateReadOrTotal()
     {
         $this->login();
         $this->prepareBooks();
 
+        $book = Book::find(3);
 
-        $book = Book::editMode()->first();
+        // 只更新 read
+        $this->updateBook(3, ['read' => 'not a numeric'])
+            ->assertStatus(422)
+            ->assertSee(json_encode(['read' => ['已读要一个整数']]))
+            ->assertDontSee('total');
 
-        $res = $this->updateBook(1, ['read' => '10000']);
-        $res->assertStatus(422)
-            ->assertSee(json_encode(['read' => ['已读不能大于' . $book->total]]));
+        $this->updateBook(3, ['read' => '10000'])
+            ->assertStatus(422)
+            ->assertSee(json_encode(['read' => ['已读不能大于' . $book->total]]))
+            ->assertDontSee('total');
 
-        $res = $this->updateBook(1, ['total' => '1']);
-        $res->assertStatus(422)
-            ->assertSee(json_encode(['total' => ['总页数不能小于' . $book->read]]));
+        // 只更新 total
+        $this->updateBook(3, ['total' => 'not a numeric'])
+            ->assertStatus(422)
+            ->assertSee(json_encode(['total' => ['总页数要一个整数']]))
+            ->assertDontSee('read');
+
+        $this->updateBook(3, ['total' => '1'])
+            ->assertStatus(422)
+            ->assertSee(json_encode(['total' => ['总页数不能小于' . $book->read]]))
+            ->assertDontSee('read');
+
+        // read 和 total 同时更新
+        $this->updateBook(3, ['read' => 999, 'total' => 1])
+            ->assertStatus(422)
+            ->assertJsonFragment(['read' => ['已读不能大于1']]);
+
+        $this->updateBook(3, ['read' => 50, 'total' => 100])
+            ->assertStatus(200);
+        $this->assertDatabaseHas('books', ['id' => 3, 'read' => 50, 'total' => 100]);
     }
 }
