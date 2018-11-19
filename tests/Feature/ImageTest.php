@@ -7,10 +7,12 @@ use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Traits\RequestActions;
 
 class ImageTest extends TestCase
 {
     use DatabaseMigrations;
+    use RequestActions;
 
     public function testCreateImage()
     {
@@ -20,7 +22,7 @@ class ImageTest extends TestCase
 
         $filePath = '/uploads/' . md5_file($image) . '.jpg';
 
-        $this->json('post', route('images.store'), ['image' => $image])
+        $this->postCreateResource('images', ['image' => $image])
             ->assertStatus(201)
             ->assertJson(['src' => $filePath]);
 

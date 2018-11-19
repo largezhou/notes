@@ -8,15 +8,12 @@ use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Traits\RequestActions;
 
 class TagTest extends TestCase
 {
     use DatabaseMigrations;
-
-    protected function getTags($data = [])
-    {
-        return $this->json('get', route('tags.index', $data));
-    }
+    use RequestActions;
 
     public function testGetTags()
     {
@@ -24,14 +21,14 @@ class TagTest extends TestCase
         create(Note::class, [], 10);
 
         // 测试获取所有标签
-        $this->getTags()->assertStatus(200)->assertJsonCount(20);
+        $this->getResources('tags')->assertStatus(200)->assertJsonCount(20);
 
         // 测试获取热门标签
         $tags[0]->notes()->attach([1, 2, 3, 4, 5]);
         $tags[1]->notes()->attach([1, 2, 3]);
         $tags[2]->notes()->attach([1, 2, 3, 4, 5, 6, 7]);
 
-        $res = $this->getTags(['scope' => 'hot']);
+        $res = $this->getResources('tags', ['scope' => 'hot']);
         $res->assertJsonCount(Tag::HOT_COUNT)
             ->assertSeeInOrder([
                 json_encode([
@@ -56,9 +53,9 @@ class TagTest extends TestCase
         create(Tag::class, ['name' => '2 test']);
         create(Tag::class, ['name' => '3 test 3']);
 
-        $this->getTags(['q' => ''])
+        $this->getResources('tags', ['q' => ''])
             ->assertJsonCount(23);
-        $this->getTags(['q' => 'test'])
+        $this->getResources('tags', ['q' => 'test'])
             ->assertJsonCount(3);
     }
 
@@ -68,12 +65,10 @@ class TagTest extends TestCase
         $tag = create(Tag::class);
         $note->tags()->attach($tag->id);
 
-        $this->json('delete', route('tags.destroy', ['tag' => 1]))
-            ->assertStatus(401);
+        $this->destroyResource('tags', 1)->assertStatus(401);
 
         $this->login();
-        $this->json('delete', route('tags.destroy', ['tag' => 1]))
-            ->assertStatus(204);
+        $this->destroyResource('tags', 1)->assertStatus(204);
 
         $this->assertDatabaseMissing('tags', ['id' => 1]);
         $this->assertDatabaseMissing('model_tags', [
@@ -83,11 +78,6 @@ class TagTest extends TestCase
         ]);
     }
 
-    protected function updateTag($id, $data = [])
-    {
-        return $this->json('put', route('tags.update', ['tag' => $id]), $data);
-    }
-
     public function testUpdateTag()
     {
         $this->login();
@@ -95,13 +85,13 @@ class TagTest extends TestCase
         create(Tag::class, ['name' => 'tag1']);
         create(Tag::class, ['name' => 'tag2']);
 
-        $res = $this->updateTag(1, ['name' => 'tag2']);
+        $res = $this->updateResource('tags', 1, ['name' => 'tag2']);
         $res->assertStatus(422);
         $this->assertJsonContains('千万不能重复啊', $res->getContent());
 
-        $this->updateTag(1, ['name' => 'tag1'])->assertStatus(204);
+        $this->updateResource('tags', 1, ['name' => 'tag1'])->assertStatus(204);
 
-        $this->updateTag(1, ['name' => 'updated'])->assertStatus(204);
+        $this->updateResource('tags', 1, ['name' => 'updated'])->assertStatus(204);
         $this->assertDatabaseHas('tags', [
             'id'   => 1,
             'name' => 'updated',
