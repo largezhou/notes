@@ -7,6 +7,9 @@ use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvi
 
 class RouteServiceProvider extends ServiceProvider
 {
+    protected $hasSoftDeletesBinds = [
+        'deletedBook' => \App\Models\Book::class,
+    ];
     /**
      * This namespace is applied to your controller routes.
      *
@@ -23,9 +26,22 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        $this->bindSoftDeletes();
 
         parent::boot();
+    }
+
+    protected function bindSoftDeletes()
+    {
+        foreach ($this->hasSoftDeletesBinds as $key => $model) {
+            Route::bind($key, function ($value) use ($model) {
+                if (auth()->guest()) {
+                    abort(404);
+                }
+
+                return $model::onlyTrashed()->findOrFail($value);
+            });
+        }
     }
 
     /**
@@ -52,8 +68,8 @@ class RouteServiceProvider extends ServiceProvider
     protected function mapWebRoutes()
     {
         Route::middleware('web')
-             ->namespace($this->namespace)
-             ->group(base_path('routes/web.php'));
+            ->namespace($this->namespace)
+            ->group(base_path('routes/web.php'));
     }
 
     /**
@@ -66,8 +82,8 @@ class RouteServiceProvider extends ServiceProvider
     protected function mapApiRoutes()
     {
         Route::prefix('api')
-             ->middleware('api')
-             ->namespace($this->namespace)
-             ->group(base_path('routes/api.php'));
+            ->middleware('api')
+            ->namespace($this->namespace)
+            ->group(base_path('routes/api.php'));
     }
 }

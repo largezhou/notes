@@ -166,19 +166,28 @@ class BookTest extends TestCase
 
     public function testForceDestroyBook()
     {
+        $this->prepareBooks();
+
+        $this->forceDestroyBook(1, true)->assertStatus(404);
+        $this->forceDestroyBook(2, true)->assertStatus(404);
+        $this->forceDestroyBook(3, true)->assertStatus(404);
+
+
+        Model::clearBootedModels();
         $this->login();
 
-        $this->prepareBooks();
-        Book::showAll()->find(1)->notes()->save(make(Note::class));
+        Book::find(1)->notes()->save(make(Note::class));
         Note::find(1)->tags()->save(make(Tag::class));
 
         // 没有被软删除的不能彻底删除
-        $this->forceDestroyBook(2)
-            ->assertStatus(404);
+        $this->forceDestroyBook(2)->assertStatus(404);
+        $this->forceDestroyBook(3)->assertStatus(404);
 
+        // 已经软删除的，可以彻底删除
         $this->forceDestroyBook(1)
             ->assertStatus(204);
 
+        // 删除后，笔记、笔记和标签的关联一并删除
         $this->assertDatabaseMissing('books', ['id' => 1]);
         $this->assertDatabaseMissing('notes', ['id' => 1]);
         $this->assertDatabaseMissing('model_tags', [

@@ -54,9 +54,9 @@ class BookController extends Controller
         return $this->noContent();
     }
 
-    public function forceDestroy($id)
+    public function forceDestroy(Book $deletedBook)
     {
-        Book::onlyTrashed()->findOrFail($id)->forceDelete();
+        $deletedBook->forceDelete();
 
         return $this->noContent();
     }
