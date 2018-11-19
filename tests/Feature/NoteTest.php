@@ -142,10 +142,10 @@ class NoteTest extends TestCase
         // 测试自动获取 desc
         $testData = $noteData;
         $testData['desc'] = null;
-        $testData['html_content'] = '<code>alert(1);</code><p>1234<code>alert(2);</code></p><code></code><code>';
+        $testData['html_content'] = '<pre><code>alert(1);</code></pre><p>1中2文3啊4<code>alert(2);</code></p><code></code><code>';
         $this->createNote(3, $testData)
             ->assertStatus(201);
-        $testData['desc'] = '1234';
+        $testData['desc'] = '1中2文3啊4alert(2);';
         $this->assertDatabaseHas('notes', $testData);
     }
 
@@ -268,11 +268,11 @@ class NoteTest extends TestCase
 
         // 自动 desc
         $updateData['desc'] = null;
-        $updateData['html_content'] = '<code>alert(1);</code><p>1234<code>alert(2);</code></p><code></code><code>';
+        $updateData['html_content'] = '<pre><code>alert(1);</code></pre><p>1中2文3啊4<code>alert(2);</code></p><code></code><code>';
 
         $this->updateResource('notes', 1, $updateData)
             ->assertStatus(200);
-        $updateData['desc'] = '1234';
+        $updateData['desc'] = '1中2文3啊4alert(2);';
         $this->assertDatabaseHas('notes', $updateData + ['id' => 1]);
     }
 
