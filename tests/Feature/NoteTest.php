@@ -99,7 +99,7 @@ class NoteTest extends TestCase
 
     public function testCreateNote()
     {
-        $this->prepareBook();
+        $this->prepareBooks();
 
         $this->createNote(3)->assertStatus(401);
 

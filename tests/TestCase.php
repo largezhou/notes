@@ -54,8 +54,9 @@ abstract class TestCase extends BaseTestCase
      *
      * @throws \Exception
      */
-    protected function prepareBook()
+    protected function prepareBooks()
     {
+        Book::truncate();
         create(Book::class, [], 10);
 
         Book::find(1)->delete();
@@ -69,7 +70,7 @@ abstract class TestCase extends BaseTestCase
      */
     protected function prepareNotes()
     {
-        $this->prepareBook();
+        $this->prepareBooks();
         Book::showAll()->get()->each(function (Book $book) {
             $notesData = factory(Note::class, 10)->make()->each(function (Note $note) use ($book) {
                 $note->page = mt_rand(1, $book->read);
@@ -95,5 +96,24 @@ abstract class TestCase extends BaseTestCase
         $haystack = json_encode(json_decode($haystack, true), JSON_UNESCAPED_UNICODE);
 
         $this->assertContains($needle, $haystack);
+    }
+
+    /**
+     * 是否看到某个表单验证消息
+     *
+     * @param TestResponse $res
+     * @param string|null  $text
+     *
+     * @return TestResponse
+     */
+    protected function seeErrorText(TestResponse $res, string $text = null)
+    {
+        $res = $res->assertStatus(422);
+
+        if ($text !== null) {
+            $res = $res->assertSee(json_get_str($text));
+        }
+
+        return $res;
     }
 }

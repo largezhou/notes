@@ -32,3 +32,17 @@ function mock_request($mock)
         return \Mockery::mock(Request::class, $mock);
     });
 }
+
+/**
+ * 把字符串转成json，并去掉起止的双引号，主要用于在 json 中查找中文
+ *
+ * @param string $str
+ *
+ * @return bool|string
+ */
+function json_get_str(string $str)
+{
+    $str = json_encode($str);
+
+    return substr($str, 1, strlen($str) - 2);
+}

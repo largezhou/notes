@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Book;
+use App\Models\Model;
 use App\Models\Note;
 use App\Models\Tag;
 use Carbon\Carbon;
@@ -11,14 +12,16 @@ use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Traits\BookActions;
 
 class BookTest extends TestCase
 {
     use DatabaseMigrations;
+    use BookActions;
 
     public function testGuestCanVisitShowAndIndexOnly()
     {
-        $this->prepareBook();
+        $this->prepareBooks();
 
         $res = $this->getBooks();
         $res->assertStatus(200)
@@ -35,10 +38,6 @@ class BookTest extends TestCase
         $this->getBook(2)->assertStatus(404);
         $this->getBook(3)->assertStatus(200)->assertDontSee('hidden')->assertDontSee('deleted_at');
 
-        // 添加
-        $this->postCreateBook()
-            ->assertStatus(401);
-
         // 删除，由于删除书，使用了模型的绑定，所以查询模型会先于权限判定，所以要使用一个没有隐藏且没有软删除的
         $this->destroyBook(10)
             ->assertStatus(401);
@@ -52,16 +51,74 @@ class BookTest extends TestCase
             ->assertStatus(401);
     }
 
-    protected function getBooks($params = [])
+    public function testPostCreateBook()
     {
-        return $this->json('get', route('books.index'), $params);
+        // 未登录
+        $this->postCreateBook()
+            ->assertStatus(401);
+
+        Model::clearBootedModels();
+        $this->login();
+
+        $this->seeErrorText($this->postCreateBook())
+            ->assertSee('title')
+            ->assertSee('total')
+            ->assertSee('cover');
+
+        // 准备数据
+        $cover = UploadedFile::fake()->image('cover.jpg');
+        $book = collect(make(Book::class, ['cover' => $cover, 'hidden' => 1, 'deleted_at' => (string) Carbon::now()]))
+            ->only(['title', 'total', 'read', 'started_at', 'cover', 'hidden', 'deleted_at'])
+            ->toArray();
+
+        // 不填已读
+        $input = $book;
+        unset($input['read']);
+        $res = $this->postCreateBook($input);
+        $res->assertStatus(201);
+        $this->assertDatabaseHas('books', [
+            'id'   => 1,
+            'read' => 0,
+        ]);
+
+        // 已读大于总页数
+        $input = $book;
+        $input['read'] = $input['total'] + 1;
+        $this->seeErrorText($this->postCreateBook($input), '不能大于' . $input['total']);
+
+        // 日期格式不对
+        $input = $book;
+        $input['started_at'] = 'not a date';
+        $this->seeErrorText($this->postCreateBook($input), '格式不对呀');
+
+        // 封面不是图片文件
+        $input = $book;
+        $input['cover'] = 'not a file';
+        $this->seeErrorText($this->postCreateBook($input), '不是图片不行的');
+
+        // 是否隐藏数据是否是 boolean 值
+        $input = $book;
+        $input['hidden'] = 'not a boolean';
+        $this->seeErrorText($this->postCreateBook($input), '只能是是还是不是');
+
+        // 最终创建成功，即使填了 deleted_at 也不会设置
+        $input = $book;
+        $res = $this->postCreateBook($input);
+        $res->assertStatus(201)
+            ->assertSee('id');
+
+        $seeData = $input;
+        $seeData['cover'] = '/uploads/' . md5_file($input['cover']) . '.jpg';
+        $seeData['deleted_at'] = null;
+        $seeData['read'] = 0;
+        $this->assertDatabaseHas('books', $seeData);
     }
 
     public function testGetBooks()
     {
         $this->login();
 
-        $this->prepareBook();
+        $this->prepareBooks();
 
         $this->getBooks()
             ->assertStatus(200)
@@ -73,61 +130,11 @@ class BookTest extends TestCase
             ->assertJsonCount(10);
     }
 
-    protected function postCreateBook($book = [])
-    {
-        return $this->json('post', route('books.store'), $book);
-    }
-
-    public function testCreateBook()
-    {
-        $this->login();
-
-        $this->postCreateBook()
-            ->assertStatus(422)
-            ->assertSee('title')
-            ->assertSee('total')
-            ->assertSee('cover');
-
-        $cover = UploadedFile::fake()->image('cover.jpg');
-        $book = collect(make(Book::class, ['cover' => $cover, 'hidden' => 1, 'deleted_at' => (string) Carbon::now()]))
-            ->only(['title', 'total', 'read', 'started_at', 'cover', 'hidden', 'deleted_at'])
-            ->toArray();
-
-        $input = $book;
-        $input['read'] = $input['total'] + 1;
-        $this->postCreateBook($input)
-            ->assertStatus(422)
-            ->assertSee(json_encode('已读不能大于' . $input['total']));
-
-        $input = $book;
-        $input['cover'] = 'not a file';
-        $this->postCreateBook($input)
-            ->assertStatus(422)
-            ->assertSee(json_encode('封面不是图片不行的'));
-
-        $input = $book;
-        $input['read'] = null;
-        $res = $this->postCreateBook($input);
-        $res->assertStatus(201)
-            ->assertSee('id');
-
-        $seeData = array_except($input, ['cover']);
-        $seeData['cover'] = '/uploads/' . md5_file($input['cover']) . '.jpg';
-        $seeData['deleted_at'] = null;
-        $seeData['read'] = 0;
-        $this->assertDatabaseHas((new Book)->getTable(), $seeData);
-    }
-
-    protected function destroyBook($id = null)
-    {
-        return $this->json('delete', route('books.destroy', ['book' => $id ?: 1]));
-    }
-
     public function testDestroyBook()
     {
         $this->login();
 
-        $this->prepareBook();
+        $this->prepareBooks();
 
         // 已经软删除的无法查询到
         $this->destroyBook(1)
@@ -140,16 +147,11 @@ class BookTest extends TestCase
         $this->assertDatabaseHas((new Book())->getTable(), ['id' => 2, 'deleted_at' => Carbon::now()]);
     }
 
-    protected function forceDestroyBook($id = null)
-    {
-        return $this->json('delete', route('books.force_destroy', ['id' => $id ?: 1]));
-    }
-
     public function testForceDestroyBook()
     {
         $this->login();
 
-        $this->prepareBook();
+        $this->prepareBooks();
         Book::showAll()->find(1)->notes()->save(make(Note::class));
         Note::find(1)->tags()->save(make(Tag::class));
 
@@ -167,11 +169,6 @@ class BookTest extends TestCase
             'target_id'   => 1,
             'target_type' => 'notes',
         ]);
-    }
-
-    protected function getBook($id = null, $params = [])
-    {
-        return $this->json('get', route('books.show', ['book' => $id ?: 1]), $params);
     }
 
     public function testShowBook()
@@ -222,16 +219,11 @@ class BookTest extends TestCase
         ]), 'created_at', 'desc', 'notes');
     }
 
-    protected function updateBook($id = null, $data = [])
-    {
-        return $this->json('put', route('books.update', ['book' => $id ?: 1]), $data);
-    }
-
     public function testUpdateHidden()
     {
         $this->login();
 
-        $this->prepareBook();
+        $this->prepareBooks();
 
         // 显示
         $this->updateBook(2, ['hidden' => false]);
@@ -246,7 +238,7 @@ class BookTest extends TestCase
     {
         $this->login();
 
-        $this->prepareBook();
+        $this->prepareBooks();
 
         $this->updateBook(1, ['deleted_at' => null]);
         $this->assertDatabaseHas((new Book())->getTable(), ['id' => 1, 'deleted_at' => null]);
@@ -255,7 +247,7 @@ class BookTest extends TestCase
     public function testUpdateBook()
     {
         $this->login();
-        $this->prepareBook();
+        $this->prepareBooks();
 
         $this->updateBook(1, [
             'title' => 'update title',
@@ -273,7 +265,7 @@ class BookTest extends TestCase
     public function testUpdateReadOrTotalOnly()
     {
         $this->login();
-        $this->prepareBook();
+        $this->prepareBooks();
 
 
         $book = Book::editMode()->first();
