@@ -58,6 +58,6 @@ class Model extends \Illuminate\Database\Eloquent\Model
 
     public function scopeShowAll(Builder $query)
     {
-        $query->withTrashed();
+        $query->withoutGlobalScope(SoftDeletingScope::class);
     }
 }

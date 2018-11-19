@@ -47,49 +47,45 @@ class NoteTest extends TestCase
             ->assertJsonFragment(['total' => 100]);
     }
 
-    protected function getNote($id)
+    public function testGetNote()
     {
-        return $this->json('get', route('notes.show', ['id' => $id]));
-    }
-
-    public function testShowNote()
-    {
+        $this->prepareBooks();
         $this->prepareNotes();
 
-        $books = Book::withHidden()->withTrashed()->get();
+        $books = Book::showAll()->get();
 
         // 软删除的书
-        $book1Notes = $books[0]->notes;
-        $this->getNote($book1Notes[0]->id)->assertStatus(404);
+        $softDeletedBookNotes = $books[0]->notes;
+        $this->getResource('notes', $softDeletedBookNotes[2]->id)->assertStatus(404);
 
         // 隐藏的书
-        $book2Notes = $books[1]->notes;
-        $this->getNote($book2Notes[0]->id)->assertStatus(404);
+        $hiddenBookNotes = $books[1]->notes;
+        $this->getResource('notes', $hiddenBookNotes[2]->id)->assertStatus(404);
 
         // 正常的书的笔记
-        $book3Notes = $books[2]->notes()->showAll()->get();
+        $bookNotes = $books[2]->notes()->showAll()->get();
         // 软删除的笔记
-        $this->getNote($book3Notes[0]->id)->assertStatus(404);
+        $this->getResource('notes', $bookNotes[0]->id)->assertStatus(404);
         // 隐藏的笔记
-        $this->getNote($book3Notes[1]->id)->assertStatus(404);
+        $this->getResource('notes', $bookNotes[1]->id)->assertStatus(404);
         // 正常笔记
-        $this->getNote($book3Notes[2]->id)->assertStatus(200);
-    }
+        $this->getResource('notes', $bookNotes[2]->id)->assertStatus(200);
 
-    public function testAuthShowNote()
-    {
         $this->login();
-        $this->prepareNotes();
+        Model::clearBootedModels();
 
-        $books = Book::withHidden()->withTrashed()->get();
-
-        // 软删除的书
-        $book1Notes = $books[0]->notes;
-        $this->getNote($book1Notes[0]->id)->assertStatus(404);
-
-        // 隐藏的书
-        $book2Notes = $books[1]->notes;
-        $this->getNote($book2Notes[0]->id)->assertStatus(200);
+        // 软删除的书的笔记
+        $this->getResource('notes', $softDeletedBookNotes[2]->id)->assertStatus(404);
+        // 隐藏的书的笔记
+        $this->getResource('notes', $hiddenBookNotes[2]->id)->assertStatus(200);
+        // 编辑模式下 软删除的书的笔记
+        $this->getResource('notes', $softDeletedBookNotes[2]->id, [], true)->assertStatus(200);
+        // 软删除的笔记
+        $this->getResource('notes', $bookNotes[0]->id)->assertStatus(404);
+        // 隐藏的笔记
+        $this->getResource('notes', $bookNotes[1]->id)->assertStatus(200);
+        // 编辑模式下 软删除的笔记
+        $this->getResource('notes', $bookNotes[0]->id, [], true)->assertStatus(200);
     }
 
     protected function createNote($bookId, $data = [])

@@ -172,7 +172,7 @@ class BookTest extends TestCase
         ]);
     }
 
-    public function testShowBook()
+    public function testGetBook()
     {
         $this->prepareBooks();
         $this->prepareNotes();
