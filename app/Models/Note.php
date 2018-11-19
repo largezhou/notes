@@ -12,6 +12,17 @@ class Note extends Model
 
     protected $fillable = ['book_id', 'page', 'title', 'desc', 'content', 'html_content', 'hidden'];
 
+    public static function boot()
+    {
+        parent::boot();
+
+        static::saving(function (Note $note) {
+            if (!$note->desc) {
+                $note->desc = get_desc($note->html_content, 100);
+            }
+        });
+    }
+
     public function book()
     {
         return $this->belongsTo(Book::class);

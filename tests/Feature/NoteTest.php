@@ -106,7 +106,7 @@ class NoteTest extends TestCase
         $book = Book::find(3);
         // 把笔记的所属页数，设置为书籍已读页多一点，避免与书籍的 read 数相同，之后用来测试标记为读到此页
         $noteData = make(Note::class, ['hidden' => '1', 'page' => $book->read + 5])->toArray();
-        $noteData = array_except($noteData, ['book_id']);
+        $noteData = array_except($noteData, ['book_id', 'created_at', 'updated_at']);
 
         $testData = $noteData;
         $testData['page'] = $book->total + 1;
@@ -120,20 +120,33 @@ class NoteTest extends TestCase
         $this->assertJsonContains('数据格式不对', $res->getContent());
 
         // 创建成功，没有标记为读到此页
-        $res = $this->createNote(3, $noteData);
-        $res->assertStatus(201)
+        $this->createNote(3, $noteData)
+            ->assertStatus(201)
             ->assertJson(['id' => 1]);
 
         $testData = array_except($noteData, ['created_at', 'updated_at']);
         $testData['book_id'] = $book->id;
-        $this->assertDatabaseHas((new Note())->getTable(), $testData);
-        $this->assertDatabaseHas((new Book())->getTable(), ['id' => $book->id, 'read' => $book->read]);
+        $this->assertDatabaseHas('notes', $testData);
+        $this->assertDatabaseHas('books', ['id' => $book->id, 'read' => $book->read]);
+
+        Note::truncate();
 
         // 标记为读到此页
-        $res = $this->createNote(3, $noteData + ['mark_read' => true]);
+        $this->createNote(3, $noteData + ['mark_read' => true]);
         $testData['book_id'] = $book->id;
-        $this->assertDatabaseHas((new Note())->getTable(), $testData);
-        $this->assertDatabaseHas((new Book())->getTable(), ['id' => $book->id, 'read' => $testData['page']]);
+        $this->assertDatabaseHas('notes', $testData);
+        $this->assertDatabaseHas('books', ['id' => $book->id, 'read' => $testData['page']]);
+
+        Note::truncate();
+
+        // 测试自动获取 desc
+        $testData = $noteData;
+        $testData['desc'] = null;
+        $testData['html_content'] = '<code>alert(1);</code><p>1234<code>alert(2);</code></p><code></code><code>';
+        $this->createNote(3, $testData)
+            ->assertStatus(201);
+        $testData['desc'] = '1234';
+        $this->assertDatabaseHas('notes', $testData);
     }
 
     public function testCreateNoteWithTags()
@@ -141,7 +154,6 @@ class NoteTest extends TestCase
         $this->login();
 
         $book = create(Book::class);
-
 
         $existsTag = create(Tag::class)->toArray();
         $newTag = 'test tag';
@@ -153,7 +165,7 @@ class NoteTest extends TestCase
         $res = $this->createNote(1, $noteData);
         $res->assertStatus(201);
 
-        $this->assertDatabaseHas((new Tag())->getTable(), ['name' => $newTag]);
+        $this->assertDatabaseHas('tags', ['name' => $newTag]);
         $this->assertDatabaseHas('model_tags', [
             'tag_id'      => $existsTag['id'],
             'target_id'   => 1,
@@ -222,9 +234,9 @@ class NoteTest extends TestCase
 
         $res = $this->updateNote(1, ['hidden' => true]);
         $res->assertStatus(200);
-        $this->assertDatabaseHas((new Note())->getTable(), ['id' => 1, 'hidden' => 1]);
+        $this->assertDatabaseHas('notes', ['id' => 1, 'hidden' => 1]);
         $this->updateNote(1, ['hidden' => false]);
-        $this->assertDatabaseHas((new Note())->getTable(), ['id' => 1, 'hidden' => 0]);
+        $this->assertDatabaseHas('notes', ['id' => 1, 'hidden' => 0]);
     }
 
     public function testRestoreNote()
@@ -236,7 +248,7 @@ class NoteTest extends TestCase
 
         $res = $this->updateNote(1, ['deleted_at' => null]);
         $res->assertStatus(200);
-        $this->assertDatabaseHas((new Note())->getTable(), ['id' => 1, 'deleted_at' => null]);
+        $this->assertDatabaseHas('notes', ['id' => 1, 'deleted_at' => null]);
     }
 
     public function testUpdateNote()
@@ -262,7 +274,7 @@ class NoteTest extends TestCase
         $res = $this->updateNote(1, $updateData);
         $res->assertStatus(200);
 
-        $this->assertDatabaseHas((new Note())->getTable(), $updateData + ['id' => 1]);
+        $this->assertDatabaseHas('notes', $updateData + ['id' => 1]);
     }
 
     public function testUpdateNoteWithTags()
