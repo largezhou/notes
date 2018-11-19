@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Filters\BookFilter;
 use App\Filters\NoteFilter;
 use App\Http\Requests\NoteRequest;
 use App\Http\Resources\BookResource;
@@ -13,17 +12,12 @@ use Illuminate\Http\Request;
 
 class NoteController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
         $notes = Note::latest()
             ->filter(app(NoteFilter::class)->only(['edit_mode']))
-            ->with(['book' => function ($query) {
-                $query->withTrashed();
-            }])
-            ->with('tags')
-            ->whereHas('book', function ($query) use ($request) {
-                $query->filter(app(BookFilter::class)->only(['edit_mode']));
-            })
+            ->with(['book', 'tags'])
+            ->whereHas('book')
             ->paginate();
 
         return NoteResource::collection($notes)->except(['updated_at', 'created_at', 'content', 'html_content']);
