@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -27,9 +28,14 @@ class CommandsTest extends TestCase
             'id'       => 1,
             'username' => 'largezhou',
         ]);
+        $this->assertTrue(\Hash::check('123456', User::first()->password));
 
         $this->artisan('notes:install')
-            ->expectsOutput('largezhou 已存在')
-            ->assertExitCode(-1);
+            ->expectsQuestion('设置密码 [000000]：', '000000')
+            ->expectsQuestion('再次输入密码 [000000]：', '000000')
+            ->expectsOutput('密码修改成功')
+            ->assertExitCode(0);
+
+        $this->assertTrue(\Hash::check('000000', User::first()->password));
     }
 }

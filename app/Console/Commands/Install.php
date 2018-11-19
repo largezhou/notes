@@ -38,14 +38,6 @@ class Install extends Command
      */
     public function handle()
     {
-        $user = User::where('username', 'largezhou')->first();
-
-        if ($user) {
-            $this->info('largezhou 已存在');
-
-            return -1;
-        }
-
         do {
             $pw = $this->secret('设置密码 [000000]：') ?: '000000';
             $pwConfirmation = $this->secret('再次输入密码 [000000]：') ?: '000000';
@@ -57,11 +49,12 @@ class Install extends Command
 
         $this->info($pw);
 
-        User::create([
-            'username' => 'largezhou',
-            'password' => bcrypt($pw),
-        ]);
+        $user = User::updateOrCreate(['username' => 'largezhou'], ['password' => bcrypt($pw)]);
 
-        $this->info('largezhou 创建成功');
+        if ($user->wasRecentlyCreated) {
+            $this->info('largezhou 创建成功');
+        } else {
+            $this->info('密码修改成功');
+        }
     }
 }
