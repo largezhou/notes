@@ -28,17 +28,9 @@ class BookController extends Controller
         return $this->created(['id' => $book->id]);
     }
 
-    public function show(Request $request, Book $book)
+    public function show(Book $book)
     {
-        $data = array_merge(
-            [
-                '_sort_field' => 'page',
-                '_sort_type'  => 'desc',
-            ],
-            $request->all()
-        );
-
-        $notes = $book->notes()->with('tags')->filter(new NoteFilter($data))->orderBy('created_at', 'desc')->get();
+        $notes = $book->notes()->with('tags')->filter(app(NoteFilter::class))->orderBy('page', 'desc')->get();
         $book->setAttribute('notes_count', $notes->count());
 
         return [

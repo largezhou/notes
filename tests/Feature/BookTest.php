@@ -101,6 +101,10 @@ class BookTest extends TestCase
 
         $this->getResources('books', [], true)
             ->assertJsonCount(10);
+
+        // recent
+        $this->getResources('books', ['recent' => 1])
+            ->assertJsonCount(Book::VERY_RECENT_COUNT);
     }
 
     public function testDestroyBook()
@@ -210,6 +214,8 @@ class BookTest extends TestCase
 
         // 默认笔记所属页数倒序
         $this->assertOrderBy($this->getResource('books', 4), 'page', 'desc', 'notes');
+        // 不提供排序类型，则忽略
+        $this->assertOrderBy($this->getResource('books', 4, ['_sort_field' => 'created_at']), 'page', 'desc', 'notes');
 
         $this->assertOrderBy($this->getResource('books', 4, [
             '_sort_field' => 'page',
