@@ -61,17 +61,15 @@ class NoteController extends Controller
         return $this->noContent();
     }
 
-    public function forceDestroy($id)
+    public function forceDestroy(Note $deletedNote)
     {
-        Note::onlyTrashed()->findOrFail($id)->forceDelete();
+        $deletedNote->forceDelete();
 
         return $this->noContent();
     }
 
-    public function update(NoteRequest $request, $id)
+    public function update(NoteRequest $request, Note $note)
     {
-        $note = $request->getNote();
-
         $note->update($request->all());
 
         if ($tags = $request->get('tags')) {

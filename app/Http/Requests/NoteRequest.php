@@ -7,26 +7,12 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class NoteRequest extends FormRequest
 {
-    /**
-     * @var Note
-     */
-    protected $note;
-
-    public function getNote()
-    {
-        if (!$this->note) {
-            $this->note = Note::showAll()->findOrFail($this->route('note'));
-        }
-
-        return $this->note;
-    }
-
     public function rules()
     {
         if ($this->isMethod('post')) {
             $book = $this->route('book');
         } else {
-            $book = $this->getNote()->book()->showAll()->first();
+            $book = $this->route('note')->book;
         }
 
         $rules = [

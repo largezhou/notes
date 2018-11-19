@@ -10,7 +10,7 @@ class Note extends Model
     use SoftDeletes;
     use CanHide;
 
-    protected $fillable = ['book_id', 'page', 'title', 'desc', 'content', 'html_content', 'hidden'];
+    protected $fillable = ['book_id', 'page', 'title', 'desc', 'content', 'html_content', 'hidden', 'deleted_at'];
 
     public static function boot()
     {

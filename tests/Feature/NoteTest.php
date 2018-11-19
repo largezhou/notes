@@ -201,18 +201,14 @@ class NoteTest extends TestCase
         $tag = make(Tag::class);
         $note->tags()->save($tag);
 
-        $forceDestroy = function ($id) {
-            return $this->json('delete', route('notes.force_destroy', ['id' => $id]));
-        };
-
-        $forceDestroy(1)->assertStatus(401);
+        $this->forceDestroyResource('notes', 1)->assertStatus(404);
 
         $this->login();
 
-        $forceDestroy(1)->assertStatus(404);
+        $this->forceDestroyResource('notes', 1)->assertStatus(404);
 
         $this->destroyNote(1);
-        $forceDestroy(1)->assertStatus(204);
+        $this->forceDestroyResource('notes', 1)->assertStatus(204);
         $this->assertDatabaseMissing('notes', ['id' => 1]);
         $this->assertDatabaseMissing('model_tags', [
             'target_id'   => 1,
@@ -221,21 +217,16 @@ class NoteTest extends TestCase
         ]);
     }
 
-    protected function updateNote($id, $data = [])
-    {
-        return $this->json('put', route('notes.update', ['id' => $id]), $data);
-    }
-
     public function testToggleHiddenNote()
     {
         $this->login();
         create(Note::class, ['book_id' => 1]);
         create(Book::class);
 
-        $res = $this->updateNote(1, ['hidden' => true]);
+        $res = $this->updateResource('notes', 1, ['hidden' => true]);
         $res->assertStatus(200);
         $this->assertDatabaseHas('notes', ['id' => 1, 'hidden' => 1]);
-        $this->updateNote(1, ['hidden' => false]);
+        $this->updateResource('notes', 1, ['hidden' => false]);
         $this->assertDatabaseHas('notes', ['id' => 1, 'hidden' => 0]);
     }
 
@@ -246,8 +237,8 @@ class NoteTest extends TestCase
         create(Note::class, ['book_id' => 1, 'deleted_at' => Carbon::now()]);
         create(Book::class);
 
-        $res = $this->updateNote(1, ['deleted_at' => null]);
-        $res->assertStatus(200);
+        $this->updateResource('notes', 1, ['deleted_at' => null], true)
+            ->assertStatus(200);
         $this->assertDatabaseHas('notes', ['id' => 1, 'deleted_at' => null]);
     }
 
@@ -259,7 +250,7 @@ class NoteTest extends TestCase
         create(Book::class);
 
         $book = Book::find(1);
-        $res = $this->updateNote(1, ['page' => 9999]);
+        $res = $this->updateResource('notes', 1, ['page' => 9999]);
         $res->assertStatus(422)->assertJsonCount(1, 'errors');
         $this->assertJsonContains("不能超过{$book->total}页", $res->getContent());
 
@@ -271,9 +262,17 @@ class NoteTest extends TestCase
             'html_content' => 'update html_content',
         ];
 
-        $res = $this->updateNote(1, $updateData);
-        $res->assertStatus(200);
+        $this->updateResource('notes', 1, $updateData)
+            ->assertStatus(200);
+        $this->assertDatabaseHas('notes', $updateData + ['id' => 1]);
 
+        // 自动 desc
+        $updateData['desc'] = null;
+        $updateData['html_content'] = '<code>alert(1);</code><p>1234<code>alert(2);</code></p><code></code><code>';
+
+        $this->updateResource('notes', 1, $updateData)
+            ->assertStatus(200);
+        $updateData['desc'] = '1234';
         $this->assertDatabaseHas('notes', $updateData + ['id' => 1]);
     }
 
@@ -288,7 +287,7 @@ class NoteTest extends TestCase
         $existsTag = create(Tag::class)->toArray();
         $newTag = 'new tag';
 
-        $res = $this->updateNote($note->id, [
+        $res = $this->updateResource('notes', $note->id, [
             'tags' => [$existsTag, $newTag],
         ]);
         $res->assertStatus(200);

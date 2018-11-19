@@ -9,6 +9,7 @@ class RouteServiceProvider extends ServiceProvider
 {
     protected $hasSoftDeletesBinds = [
         'deletedBook' => \App\Models\Book::class,
+        'deletedNote' => \App\Models\Note::class,
     ];
     /**
      * This namespace is applied to your controller routes.

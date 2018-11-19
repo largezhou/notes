@@ -22,7 +22,7 @@ Route::group([
 Route::delete('deleted-books/{deletedBook}', 'BookController@forceDestroy')->name('books.force_destroy');
 Route::resource('books', 'BookController')->except(['create', 'edit']);
 
-Route::delete('deleted-notes/{id}', 'NoteController@forceDestroy')->name('notes.force_destroy');
+Route::delete('deleted-notes/{deletedNote}', 'NoteController@forceDestroy')->name('notes.force_destroy');
 Route::resource('notes', 'NoteController')->except(['store', 'create', 'edit']);
 Route::post('books/{book}/notes', 'NoteController@store')->name('notes.store');
 
