@@ -116,9 +116,15 @@ class BookTest extends TestCase
 
     public function testGetBooks()
     {
-        $this->login();
-
         $this->prepareBooks();
+
+        // 未登录的情况，软删除和隐藏的看不到，即使开启了编辑模式
+        $this->getBooks(['edit_mode' => 1])
+            ->assertStatus(200)
+            ->assertJsonCount(8);
+
+        $this->login();
+        Model::clearBootedModels();
 
         $this->getBooks()
             ->assertStatus(200)

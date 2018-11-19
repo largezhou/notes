@@ -57,17 +57,6 @@ abstract class Filter
         return array_only($this->data, $this->filters);
     }
 
-    /**
-     * 编辑模式过滤器，显示软删除和隐藏的
-     */
-    protected function editMode()
-    {
-        // 只有在登录的情况下，才能启用编辑模式
-        if (auth()->check()) {
-            $this->builder->withTrashed();
-        }
-    }
-
     public function only(array $only)
     {
         $this->filters = array_intersect($this->filters, $only);

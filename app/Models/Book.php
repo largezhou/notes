@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Filters\BookFilter;
 use App\Traits\CanHide;
 use Illuminate\Database\Eloquent\SoftDeletes;
 

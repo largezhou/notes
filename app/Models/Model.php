@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Filters\Filter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class Model extends \Illuminate\Database\Eloquent\Model
 {
@@ -13,6 +14,19 @@ class Model extends \Illuminate\Database\Eloquent\Model
         'updated_at' => 'string',
         'deleted_at' => 'string',
     ];
+
+    protected static function boot()
+    {
+        // 如果已登录，且请求中有 edit_mode 字段，则去掉软删除的全局作用域
+        // 这里一定要放在 parent::boot 之前，因为应用 全局作用域 是有顺序的
+        static::addGlobalScope('withTrashed', function (Builder $builder) {
+            if (auth()->check() && request()->has('edit_mode')) {
+                $builder->withoutGlobalScope(SoftDeletingScope::class);
+            }
+        });
+
+        parent::boot();
+    }
 
     /**
      * 编辑模式
