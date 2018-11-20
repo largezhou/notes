@@ -45,6 +45,11 @@ class NoteTest extends TestCase
         // 编辑模式可以看到所有
         $this->getResources('notes', [], true)
             ->assertJsonFragment(['total' => 100]);
+
+        // 第二页
+        $this->getResources('notes', ['page' => 2], true)
+            ->assertJsonCount('15', 'data')
+            ->assertJsonFragment(['current_page' => 2]);
     }
 
     public function testGetNote()
