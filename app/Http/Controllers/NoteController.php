@@ -38,7 +38,7 @@ class NoteController extends Controller
     public function store(NoteRequest $request, Book $book)
     {
         /** @var Note $note */
-        $note = $book->notes()->create($request->all());
+        $note = $book->notes()->create($request->validated());
 
         if ($tags = $request->get('tags')) {
             $note->handleSyncTags($tags);

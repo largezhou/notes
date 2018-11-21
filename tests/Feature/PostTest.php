@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Model;
+use App\Models\Post;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -17,6 +18,12 @@ class PostTest extends TestCase
     protected function setUp()
     {
         parent::setUp();
+
+        if ($this->getName() == 'testCreatePost') {
+            return;
+        }
+
+        echo $this->getName() . PHP_EOL;
 
         $this->prepareBooks();
         $this->prepareNotes();
@@ -74,5 +81,36 @@ class PostTest extends TestCase
         // 编辑模式 软删除的
         $this->getResource('posts', 101, [], true)
             ->assertStatus(200);
+    }
+
+    public function testCreatePost()
+    {
+        $this->postCreateResource('posts')
+            ->assertStatus(401);
+
+        $this->login();
+        Model::clearBootedModels();
+
+        $postData = collect(make(Post::class)->toArray())->except(['created_at', 'updated_at'])->toArray();
+
+        // 正常创建成功
+        $input = $postData;
+        $this->postCreateResource('posts', $input)
+            ->assertStatus(201)
+            ->assertJsonFragment(['id' => 1]);
+        $input['id'] = 1;
+        $this->assertDatabaseHas('notes', $input);
+
+        Post::truncate();
+
+        // 测试不填 desc
+        $input = $postData;
+        unset($input['desc']);
+        $this->postCreateResource('posts', $input)
+            ->assertStatus(201)
+            ->assertJsonFragment(['id' => 1]);
+        $input['id'] = 1;
+        $input['desc'] = get_desc($input['html_content'], 100);
+        $this->assertDatabaseHas('notes', $input);
     }
 }

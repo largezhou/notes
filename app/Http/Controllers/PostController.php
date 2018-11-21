@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PostRequest;
 use App\Http\Resources\PostResource;
 use App\Models\Post;
 use Illuminate\Http\Request;
@@ -22,5 +23,18 @@ class PostController extends Controller
         $post->load('tags');
 
         return PostResource::make($post);
+    }
+
+    public function store(PostRequest $request)
+    {
+        $post = Post::create($request->validated());
+
+        if ($tags = $request->get('tags')) {
+            $post->handleSyncTags($tags);
+        }
+
+        return $this->created([
+            'id' => $post->id,
+        ]);
     }
 }

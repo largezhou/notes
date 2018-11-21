@@ -8,15 +8,10 @@ class Post extends BaseNote
 {
     protected $fillable = ['title', 'desc', 'content', 'html_content', 'hidden', 'deleted_at'];
 
-    public function setReadAttribute($value)
-    {
-        $this->attributes['read'] = 0;
-    }
-
-    public function setBookIdAttribute($value)
-    {
-        $this->attributes['book_id'] = 0;
-    }
+    protected $attributes = [
+        'page'    => 0,
+        'book_id' => 0,
+    ];
 
     protected static function addTypeGlobalScope()
     {
