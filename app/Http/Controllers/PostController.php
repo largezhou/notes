@@ -37,4 +37,18 @@ class PostController extends Controller
             'id' => $post->id,
         ]);
     }
+
+    public function destroy(Post $post)
+    {
+        $post->delete();
+
+        return $this->noContent();
+    }
+
+    public function forceDestroy(Post $deletedPost)
+    {
+        $deletedPost->forceDelete();
+
+        return $this->noContent();
+    }
 }

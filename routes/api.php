@@ -30,4 +30,5 @@ Route::resource('tags', 'TagController')->except(['store', 'show', 'create', 'ed
 
 Route::post('images', 'ImageController@store')->name('images.store');
 
+Route::delete('deleted-posts/{deletedPost}', 'PostController@forceDestroy')->name('posts.force_destroy');
 Route::resource('posts', 'PostController');
