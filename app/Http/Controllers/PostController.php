@@ -51,4 +51,15 @@ class PostController extends Controller
 
         return $this->noContent();
     }
+
+    public function update(PostRequest $request, Post $post)
+    {
+        $post->update($request->validated());
+
+        if ($tags = $request->get('tags')) {
+            $post->handleSyncTags($tags);
+        }
+
+        return PostResource::make($post);
+    }
 }

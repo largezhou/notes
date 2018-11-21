@@ -8,13 +8,20 @@ class PostRequest extends FormRequest
 {
     public function rules()
     {
-        return [
+        $rules = [
             'title'        => 'bail|required|string|max:255',
             'desc'         => 'bail|nullable|string|max:255',
             'content'      => 'bail|required|string|max:60000',
             'html_content' => 'bail|required|string|max:60000',
             'tags'         => 'array',
+            'hidden'       => 'filled|boolean',
         ];
+
+        if ($this->isMethod('put')) {
+            $rules = array_only($rules, $this->keys());
+        }
+
+        return $rules;
     }
 
     public function attributes()
