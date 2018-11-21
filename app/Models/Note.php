@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Traits\CanHide;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Builder;
 
 class Note extends Model
 {
@@ -15,6 +16,11 @@ class Note extends Model
     public static function boot()
     {
         parent::boot();
+
+        // 博客和笔记用同一张表，有 book_id 的为笔记
+        static::addGlobalScope('notes', function (Builder $builder) {
+            $builder->where('book_id', '<>', 0);
+        });
 
         static::saving(function (Note $note) {
             if (!$note->desc) {

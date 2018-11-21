@@ -81,6 +81,9 @@ abstract class TestCase extends BaseTestCase
 
             $book->notes()->saveMany($notesData);
         });
+
+        // 添加 10个 博客，即 book_id 为 0 的
+        create(Note::class, ['book_id' => 0, 'page' => 0], 10);
     }
 
     /**
