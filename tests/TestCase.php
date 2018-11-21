@@ -4,6 +4,7 @@ namespace Tests;
 
 use App\Models\Book;
 use App\Models\Note;
+use App\Models\Post;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
@@ -83,7 +84,10 @@ abstract class TestCase extends BaseTestCase
         });
 
         // 添加 10个 博客，即 book_id 为 0 的
-        create(Note::class, ['book_id' => 0, 'page' => 0], 10);
+        create(Post::class, [], 20);
+        $posts = Post::limit(2)->get();
+        $posts[0]->update(['deleted_at' => Carbon::now()]);
+        $posts[1]->update(['hidden' => true]);
     }
 
     /**

@@ -18,7 +18,7 @@ class BaseNote extends Model
 
         static::addTypeGlobalScope();
 
-        static::saving(function (Note $note) {
+        static::saving(function (BaseNote $note) {
             if (!$note->desc) {
                 $note->desc = get_desc($note->html_content, 100);
             }
