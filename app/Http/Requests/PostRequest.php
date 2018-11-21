@@ -15,6 +15,7 @@ class PostRequest extends FormRequest
             'html_content' => 'bail|required|string|max:60000',
             'tags'         => 'array',
             'hidden'       => 'filled|boolean',
+            'deleted_at'   => 'nullable|date',
         ];
 
         if ($this->isMethod('put')) {
