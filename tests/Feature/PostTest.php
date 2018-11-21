@@ -14,11 +14,16 @@ class PostTest extends TestCase
     use DatabaseMigrations;
     use RequestActions;
 
-    public function testGetPosts()
+    protected function setUp()
     {
+        parent::setUp();
+
         $this->prepareBooks();
         $this->prepareNotes();
+    }
 
+    public function testGetPosts()
+    {
         $this->getResources('posts')
             ->assertStatus(200)
             ->assertJsonCount(15, 'data')
@@ -44,5 +49,30 @@ class PostTest extends TestCase
         $this->getResources('posts', ['page' => 2], true)
             ->assertJsonCount(5, 'data')
             ->assertJsonFragment(['current_page' => 2]);
+    }
+
+
+    public function testGetPost()
+    {
+        // 未登录
+        // 软删除的
+        $this->getResource('posts', 101)
+            ->assertStatus(404);
+        // 隐藏的
+        $this->getResource('posts', 102)
+            ->assertStatus(404);
+
+        $this->login();
+        Model::clearBootedModels();
+
+        // 软删除的
+        $this->getResource('posts', 101)
+            ->assertStatus(404);
+        // 隐藏的
+        $this->getResource('posts', 102)
+            ->assertStatus(200);
+        // 编辑模式 软删除的
+        $this->getResource('posts', 101, [], true)
+            ->assertStatus(200);
     }
 }

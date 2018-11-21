@@ -16,4 +16,11 @@ class PostController extends Controller
 
         return PostResource::collection($posts)->except(['updated_at', 'created_at', 'content', 'html_content']);
     }
+
+    public function show(Post $post)
+    {
+        $post->load('tags');
+
+        return PostResource::make($post);
+    }
 }
