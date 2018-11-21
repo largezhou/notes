@@ -39,6 +39,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Relation::morphMap([
             'notes' => \App\Models\Note::class,
+            'posts' => \App\Models\Post::class,
         ]);
     }
 }
