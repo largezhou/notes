@@ -26,7 +26,7 @@ Route::delete('deleted-notes/{deletedNote}', 'NoteController@forceDestroy')->nam
 Route::resource('notes', 'NoteController')->except(['store', 'create', 'edit']);
 Route::post('books/{book}/notes', 'NoteController@store')->name('notes.store');
 
-Route::resource('tags', 'TagController')->except(['store', 'show', 'create', 'edit']);
+Route::resource('tags', 'TagController')->except(['store', 'create', 'edit']);
 
 Route::post('images', 'ImageController@store')->name('images.store');
 

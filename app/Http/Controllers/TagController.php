@@ -30,4 +30,12 @@ class TagController extends Controller
 
         return $this->noContent();
     }
+
+    public function show(Tag $tag)
+    {
+        $tag->load(['notes', 'posts', 'notes.book', 'notes.tags', 'posts.tags']);
+        $tag->setAttribute('targets_count', $tag->notes->count() + $tag->posts->count());
+
+        return TagResource::make($tag);
+    }
 }
