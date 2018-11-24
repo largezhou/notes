@@ -15,6 +15,11 @@ class Tag extends Model
         return $this->morphedByMany(Note::class, 'target', 'model_tags');
     }
 
+    public function posts()
+    {
+        return $this->morphedByMany(Post::class, 'target', 'model_tags');
+    }
+
     /**
      * 分离数据中的 已存在标签 和 新标签
      *
@@ -55,5 +60,10 @@ class Tag extends Model
         \DB::commit();
 
         return $res;
+    }
+
+    public function baseNotes()
+    {
+        return $this->belongsToMany(BaseNote::class, 'model_tags', 'tag_id', 'target_id');
     }
 }
