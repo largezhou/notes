@@ -17,14 +17,13 @@ class Book extends Model
 
     protected $fillable = ['title', 'total', 'read', 'started_at', 'cover', 'hidden', 'deleted_at'];
 
+    protected $attributes = [
+        'read'    => 0,
+    ];
+
     public function notes()
     {
         return $this->hasMany(Note::class);
-    }
-
-    public function setReadAttribute($value)
-    {
-        $this->attributes['read'] = $value ?? 0;
     }
 
     public function delete()

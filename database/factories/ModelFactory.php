@@ -70,3 +70,18 @@ $factory->define(App\Models\Tag::class, function (Faker $faker) {
         'name' => $faker->word,
     ];
 });
+
+$factory->define(App\Models\Post::class, function (Faker $faker) {
+    return [
+        'book_id'      => 0,
+        'page'         => 0,
+        'title'        => $faker->sentence,
+        'desc'         => $faker->sentence,
+        'content'      => $faker->paragraph(10),
+        'html_content' => '<h1>HTML_CONTENT</h1>' . $faker->paragraph(10),
+        'created_at'   => $faker->dateTimeBetween('-2 months')->format('Y-m-d H:i:s'),
+        'updated_at'   => $faker->dateTimeBetween('-2 months')->format('Y-m-d H:i:s'),
+        'deleted_at'   => null,
+        'hidden'       => false,
+    ];
+});

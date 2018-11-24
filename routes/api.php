@@ -29,3 +29,6 @@ Route::post('books/{book}/notes', 'NoteController@store')->name('notes.store');
 Route::resource('tags', 'TagController')->except(['store', 'show', 'create', 'edit']);
 
 Route::post('images', 'ImageController@store')->name('images.store');
+
+Route::delete('deleted-posts/{deletedPost}', 'PostController@forceDestroy')->name('posts.force_destroy');
+Route::resource('posts', 'PostController');

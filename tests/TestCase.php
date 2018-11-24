@@ -4,6 +4,7 @@ namespace Tests;
 
 use App\Models\Book;
 use App\Models\Note;
+use App\Models\Post;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
@@ -72,6 +73,7 @@ abstract class TestCase extends BaseTestCase
     protected function prepareNotes()
     {
         Note::truncate();
+        // 100条笔记
         Book::showAll()->get()->each(function (Book $book) {
             $notesData = factory(Note::class, 10)->make()->each(function (Note $note) use ($book) {
                 $note->page = mt_rand(1, $book->read);
@@ -81,6 +83,12 @@ abstract class TestCase extends BaseTestCase
 
             $book->notes()->saveMany($notesData);
         });
+
+        // 添加20篇博客，即 book_id 为0的
+        create(Post::class, [], 20);
+        $posts = Post::limit(2)->get();
+        $posts[0]->update(['deleted_at' => Carbon::now()]);
+        $posts[1]->update(['hidden' => true]);
     }
 
     /**

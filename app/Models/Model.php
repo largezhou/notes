@@ -29,16 +29,6 @@ class Model extends \Illuminate\Database\Eloquent\Model
     }
 
     /**
-     * 编辑模式
-     *
-     * @param Builder $query
-     */
-    public function scopeEditMode(Builder $query)
-    {
-        $query->withTrashed();
-    }
-
-    /**
      * 应用过滤器
      *
      * @param Builder $query
