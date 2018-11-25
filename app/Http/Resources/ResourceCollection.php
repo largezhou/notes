@@ -40,6 +40,10 @@ class ResourceCollection extends AnonymousResourceCollection
      */
     protected function applyFilter($type, $keys)
     {
+        if (!$this->collection) {
+            return $this;
+        }
+
         $this->collection->map(function (JsonResource $resource) use ($type, $keys) {
             $resource->$type($keys);
         });
