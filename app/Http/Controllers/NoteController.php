@@ -76,6 +76,12 @@ class NoteController extends Controller
             $note->handleSyncTags($tags);
         }
 
+        if ($request->get('mark_read')) {
+            $book = $note->book;
+            $book->read = $request->get('page');
+            $book->save();
+        }
+
         return NoteResource::make($note);
     }
 }

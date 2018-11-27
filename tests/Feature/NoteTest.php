@@ -267,9 +267,14 @@ class NoteTest extends TestCase
             'html_content' => 'update html_content',
         ];
 
-        $this->updateResource('notes', 1, $updateData)
+        $this->updateResource('notes', 1, $updateData + ['mark_read' => 1])
             ->assertStatus(200);
         $this->assertDatabaseHas('notes', $updateData + ['id' => 1]);
+        // 更新时标记读到此页
+        $this->assertDatabaseHas('books', [
+            'id'   => $book->id,
+            'read' => 2,
+        ]);
 
         // 自动 desc
         $updateData['desc'] = null;
