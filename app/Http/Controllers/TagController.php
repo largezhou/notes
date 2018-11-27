@@ -10,9 +10,12 @@ use Illuminate\Http\Request;
 
 class TagController extends Controller
 {
-    public function index(TagFilter $tagFilter)
+    public function index(TagFilter $tagFilter, Tag $tag)
     {
-        $tags = Tag::withCount('targets')->orderBy('targets_count', 'desc')->filter($tagFilter)->get();
+        $tags = $tag
+            ->withCount('notes')
+            ->withCount('posts')
+            ->filter($tagFilter)->get();
 
         return TagResource::collection($tags);
     }
@@ -34,7 +37,8 @@ class TagController extends Controller
     public function show(Tag $tag)
     {
         $tag->load(['notes', 'posts', 'notes.book', 'notes.tags', 'posts.tags']);
-        $tag->setAttribute('targets_count', $tag->notes->count() + $tag->posts->count());
+        $tag->setAttribute('notes_count', $tag->notes->count());
+        $tag->setAttribute('posts_count', $tag->posts->count());
 
         return TagResource::make($tag);
     }
