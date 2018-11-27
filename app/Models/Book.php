@@ -20,8 +20,10 @@ class Book extends Model
     public function setReadAttribute($value)
     {
         if (is_null($value)) {
-            $this->attributes['read'] = 0;
+            $value = 0;
         }
+
+        $this->attributes['read'] = $value;
     }
 
     public function notes()
