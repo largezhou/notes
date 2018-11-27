@@ -17,9 +17,12 @@ class Book extends Model
 
     protected $fillable = ['title', 'total', 'read', 'started_at', 'cover', 'hidden', 'deleted_at'];
 
-    protected $attributes = [
-        'read'    => 0,
-    ];
+    public function setReadAttribute($value)
+    {
+        if (is_null($value)) {
+            $this->attributes['read'] = 0;
+        }
+    }
 
     public function notes()
     {

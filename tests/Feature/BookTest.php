@@ -41,6 +41,15 @@ class BookTest extends TestCase
 
         // 不填已读
         $input = $book;
+        $input['read'] = null;
+        $res = $this->postCreateResource('books', $input);
+        $res->assertStatus(201);
+        $this->assertDatabaseHas('books', [
+            'id'   => 1,
+            'read' => 0,
+        ]);
+
+        $input = $book;
         unset($input['read']);
         $res = $this->postCreateResource('books', $input);
         $res->assertStatus(201);
