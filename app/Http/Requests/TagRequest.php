@@ -13,7 +13,7 @@ class TagRequest extends FormRequest
         ];
     }
 
-    public function messages()
+    public function attributes()
     {
         return [
             'name' => '名称',
