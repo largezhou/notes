@@ -15,7 +15,11 @@ class TagController extends Controller
         $tags = $tag
             ->withCount('notes')
             ->withCount('posts')
-            ->filter($tagFilter)->get();
+            ->filter($tagFilter)
+            ->get()
+            ->sortByDesc(function ($tag) {
+                return $tag->notes_count + $tag->posts_count;
+            });
 
         return TagResource::collection($tags);
     }

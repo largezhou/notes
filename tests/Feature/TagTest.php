@@ -34,17 +34,17 @@ class TagTest extends TestCase
                 json_encode([
                     'id'    => $tags[2]->id,
                     'name'  => $tags[2]->name,
-                    'count' => '7',
+                    'count' => 7,
                 ]),
                 json_encode([
                     'id'    => $tags[0]->id,
                     'name'  => $tags[0]->name,
-                    'count' => '5',
+                    'count' => 5,
                 ]),
                 json_encode([
                     'id'    => $tags[1]->id,
                     'name'  => $tags[1]->name,
-                    'count' => '3',
+                    'count' => 3,
                 ]),
             ]);
 
