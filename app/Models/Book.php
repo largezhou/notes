@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
+use App\Interfaces\XSIndexable;
 use App\Traits\CanHide;
+use App\Traits\XSIndex;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Book extends Model
+class Book extends Model implements XSIndexable
 {
     use SoftDeletes;
     use CanHide;
+    use XSIndex;
 
     /**
      * 书籍挂件的书籍数量
@@ -43,5 +46,25 @@ class Book extends Model
         \DB::commit();
 
         return $res;
+    }
+
+    public function xsContent(): string
+    {
+        return '';
+    }
+
+    public function xsTitle(): string
+    {
+        return $this->title;
+    }
+
+    public function xsId(): string
+    {
+        return "book-{$this->id}";
+    }
+
+    public function xsIndexFields(): array
+    {
+        return ['title'];
     }
 }

@@ -20,4 +20,9 @@ class Post extends BaseNote
             $builder->where('book_id', 0);
         });
     }
+
+    public function xsId(): string
+    {
+        return "post-{$this->id}";
+    }
 }

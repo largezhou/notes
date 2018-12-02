@@ -2,15 +2,18 @@
 
 namespace App\Models;
 
+use App\Interfaces\XSIndexable;
 use App\Traits\CanHide;
+use App\Traits\XSIndex;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class BaseNote extends Model
+class BaseNote extends Model implements XSIndexable
 {
     protected $table = 'notes';
 
     use SoftDeletes;
     use CanHide;
+    use XSIndex;
 
     public static function boot()
     {
@@ -53,5 +56,28 @@ class BaseNote extends Model
         \DB::commit();
 
         return $res;
+    }
+
+    public function xsContent(): string
+    {
+        return trim(strip_tags($this->html_content ?? ''));
+    }
+
+    public function xsTitle(): string
+    {
+        return $this->title ?? '';
+    }
+
+    public function xsId(): string
+    {
+        throw new \Exception('必须继承该方法');
+    }
+
+    public function xsIndexFields(): array
+    {
+        return [
+            'title',
+            'html_content',
+        ];
     }
 }

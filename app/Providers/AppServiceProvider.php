@@ -20,6 +20,10 @@ class AppServiceProvider extends ServiceProvider
         Resource::withoutWrapping();
 
         $this->morphMap();
+
+        $this->app->singleton('XS', function ($app) {
+            return new \XS(base_path('xs/notes.ini'));
+        });
     }
 
     /**

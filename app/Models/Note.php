@@ -20,4 +20,9 @@ class Note extends BaseNote
     {
         return $this->belongsTo(Book::class);
     }
+
+    public function xsId(): string
+    {
+        return "notes-{$this->id}";
+    }
 }
