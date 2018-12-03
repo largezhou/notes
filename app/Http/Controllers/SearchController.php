@@ -89,7 +89,7 @@ class SearchController extends Controller
         $cutStart = $emPos - self::CUT_LENGTH / 2;
         $cutStart = $cutStart > 0 ? $cutStart : 0;
 
-        $cutEnd = strpos($content, '</em>', $emPos) + self::CUT_LENGTH / 2;
+        $cutEnd = mb_strpos($content, '</em>', $emPos) + self::CUT_LENGTH / 2;
 
         return ($cutStart > 0 ? '...' : '')
             . mb_substr($content, $cutStart, $cutEnd - $cutStart)
