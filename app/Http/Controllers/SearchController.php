@@ -46,6 +46,8 @@ class SearchController extends Controller
             return compact('type', 'id', 'title', 'content');
         }, $res);
 
+        $search->close();
+
         return $res;
     }
 }

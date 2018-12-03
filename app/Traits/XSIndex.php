@@ -11,13 +11,9 @@ trait XSIndex
 {
     public static function bootXSIndex()
     {
-        static::saved(function (Model $model) {
+        static::saved(function (XSIndexable $model) {
             if (app()->runningUnitTests()) {
                 return;
-            }
-
-            if (!$model instanceof XSIndexable) {
-                throw new \Exception('必须实现 [' . XSIndexable::class . '] 接口，才能索引内容');
             }
 
             if (!$model->isDirty($model->xsIndexFields())) {
@@ -50,6 +46,8 @@ trait XSIndex
             } else {
                 $index->update($doc);
             }
+
+            $index->close();
         });
     }
 }
