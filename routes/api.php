@@ -32,3 +32,5 @@ Route::post('images', 'ImageController@store')->name('images.store');
 
 Route::delete('deleted-posts/{deletedPost}', 'PostController@forceDestroy')->name('posts.force_destroy');
 Route::resource('posts', 'PostController');
+
+Route::get('search', 'SearchController@search')->name('search');
