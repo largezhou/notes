@@ -44,13 +44,7 @@ class XSIndex extends Command
     protected function index(Collection $items)
     {
         $items->each(function (XSIndexable $model) {
-            $data = [
-                'id'      => strtolower($model->xsId()),
-                'title'   => strtolower($model->xsTitle()),
-                'content' => strtolower($model->xsContent()),
-            ];
-
-            $this->doc->setFields($data);
+            $this->doc->setFields($model->xsDocData());
 
             $this->index->add($this->doc);
         });

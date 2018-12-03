@@ -16,7 +16,9 @@ trait XSIndex
                 return;
             }
 
-            if (!$model->isDirty($model->xsIndexFields())) {
+            $fields = array_merge($model->xsIndexFields(), ['hidden', 'deleted_at']);
+
+            if (!$model->isDirty($fields)) {
                 return;
             }
 
@@ -32,15 +34,9 @@ trait XSIndex
 
             $doc = new XSDocument();
 
-            $data = [
-                'id'      => strtolower($model->xsId()),
-                'title'   => strtolower($model->xsTitle()),
-                'content' => strtolower($model->xsContent()),
-            ];
+            $doc->setFields($model->xsDocData());
 
-            $doc->setFields($data);
-
-            // 如果数据时新建的，则使用 add ，官方说性能会快一点
+            // 如果数据是新建的，则使用 add ，官方说性能会快一点
             if ($model->wasRecentlyCreated) {
                 $index->add($doc);
             } else {
@@ -49,5 +45,16 @@ trait XSIndex
 
             $index->close();
         });
+    }
+
+    public function xsDocData(): array
+    {
+        return [
+            'id'      => strtolower($this->xsId()),
+            'title'   => strtolower($this->xsTitle()),
+            'content' => strtolower($this->xsContent()),
+            'hidden'  => (int) (bool) $this->getAttribute('hidden'),
+            'deleted' => (int) (bool) $this->deleted_at,
+        ];
     }
 }

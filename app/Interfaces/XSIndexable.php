@@ -31,4 +31,11 @@ interface XSIndexable
      * @return array
      */
     public function xsIndexFields(): array;
+
+    /**
+     * 返回文档数据
+     *
+     * @return array
+     */
+    public function xsDocData(): array;
 }

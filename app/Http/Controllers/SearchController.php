@@ -34,16 +34,33 @@ class SearchController extends Controller
             }
         }
 
+        $q = "({$q})";
+
+        // 软删除 和 隐藏的
+        if (!auth()->check()) {
+            $q .= ' AND hidden:0 AND deleted:0';
+        } elseif (!$request->header('Edit-Mode')) {
+            $q .= ' AND deleted:0';
+        }
+
         $res = $search->setQuery($q)->search();
 
         $res = array_map(function (XSDocument $doc) use ($search) {
             $data = $doc->getFields();
 
-            list($type, $id) = explode('-', $data['id']);
-            $title = $search->highlight($data['title']);
-            $content = $search->highlight($data['content']);
+            list($data['type'], $data['id']) = explode('-', $data['id']);
+            $data['title'] = $search->highlight($data['title']);
+            $data['content'] = $search->highlight($data['content']);
 
-            return compact('type', 'id', 'title', 'content');
+            if (auth()->check()) {
+                $data['hidden'] = (int) $data['hidden'];
+                $data['deleted'] = (int) $data['deleted'];
+            } else {
+                unset($data['hidden']);
+                unset($data['deleted']);
+            }
+
+            return $data;
         }, $res);
 
         $search->close();
