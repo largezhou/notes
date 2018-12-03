@@ -6,10 +6,11 @@ class TagResource extends JsonResource
 {
     public function data($request)
     {
+        $counts = null;
         if (isset($this->notes_count) && isset($this->posts_count)) {
             $counts = $this->notes_count + $this->posts_count;
         }
-        
+
         return [
             'id'    => $this->id,
             'name'  => $this->name,
