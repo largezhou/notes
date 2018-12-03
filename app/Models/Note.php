@@ -23,6 +23,6 @@ class Note extends BaseNote
 
     public function xsId(): string
     {
-        return "notes-{$this->id}";
+        return "note-{$this->id}";
     }
 }
