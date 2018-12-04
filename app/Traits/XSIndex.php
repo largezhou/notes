@@ -3,27 +3,12 @@
 namespace App\Traits;
 
 use App\Interfaces\XSIndexable;
-use Illuminate\Database\Eloquent\Model;
 use XSDocument;
 use XSException;
+use XSIndex as XSIndexer;
 
 trait XSIndex
 {
-    protected static function xsGetIndexIns()
-    {
-        $xs = app('XS');
-        try {
-            // TODO 这一步比较耗时，之后放到队列中
-            $index = $xs->index;
-        } catch (XSException $e) {
-            report($e);
-
-            return null;
-        }
-
-        return $index;
-    }
-
     public static function bootXSIndex()
     {
         static::saved(function (XSIndexable $model) {
@@ -42,36 +27,71 @@ trait XSIndex
                 return;
             }
 
-            $doc = new XSDocument();
-
-            $doc->setFields($model->xsDocData());
-
-            // 如果数据是新建的，则使用 add ，官方说性能会快一点
-            if ($model->wasRecentlyCreated) {
-                $index->add($doc);
-            } else {
-                $index->update($doc);
-            }
+            static::xsUpdate($index, $model);
 
             $index->close();
         });
 
         static::deleted(function (XSIndexable $model) {
-            // 如果是软删除，则不用删除对应的索引
-            if ($model->forceDeleting === false) {
-                return;
-            }
-
-            // 其他情况，要么没有 forceDeleting 属性，要么为 true，都是彻底删除
             $index = static::xsGetIndexIns();
             if (!$index) {
                 return;
             }
 
-            $index->del($model->xsId());
+            // 如果是软删除，则要更新索引
+            // 否则删除索引
+            if ($model->forceDeleting === false) {
+                static::xsUpdate($index, $model);
+            } else {
+                $index->del($model->xsId());
+            }
         });
     }
 
+    /**
+     * 获取迅搜索引实例
+     *
+     * @return XSIndexer|null
+     */
+    protected static function xsGetIndexIns()
+    {
+        $xs = app('XS');
+        try {
+            $index = $xs->index;
+        } catch (XSException $e) {
+            report($e);
+
+            return null;
+        }
+
+        return $index;
+    }
+
+    /**
+     * 更新索引
+     *
+     * @param XSIndexer   $index
+     * @param XSIndexable $model
+     */
+    protected static function xsUpdate(XSIndexer $index, XSIndexable $model)
+    {
+        $doc = new XSDocument();
+
+        $doc->setFields($model->xsDocData());
+
+        // 如果数据是新建的，则使用 add ，官方说性能会快一点
+        if ($model->wasRecentlyCreated) {
+            $index->add($doc);
+        } else {
+            $index->update($doc);
+        }
+    }
+
+    /**
+     * 返回用于添加到 notes 项目索引文档的数据
+     *
+     * @return array
+     */
     public function xsDocData(): array
     {
         return [

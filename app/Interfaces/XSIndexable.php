@@ -5,7 +5,7 @@ namespace App\Interfaces;
 interface XSIndexable
 {
     /**
-     * 讯搜中 notes 项目的 title 字段内容
+     * 迅搜中 notes 项目的 title 字段内容
      *
      * @return string
      */
