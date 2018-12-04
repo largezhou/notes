@@ -9,6 +9,21 @@ use XSException;
 
 trait XSIndex
 {
+    protected static function xsGetIndexIns()
+    {
+        $xs = app('XS');
+        try {
+            // TODO 这一步比较耗时，之后放到队列中
+            $index = $xs->index;
+        } catch (XSException $e) {
+            report($e);
+
+            return null;
+        }
+
+        return $index;
+    }
+
     public static function bootXSIndex()
     {
         static::saved(function (XSIndexable $model) {
@@ -22,13 +37,8 @@ trait XSIndex
                 return;
             }
 
-            $xs = app('XS');
-            try {
-                // TODO 这一步比较耗时，之后放到队列中
-                $index = $xs->index;
-            } catch (XSException $e) {
-                report($e);
-
+            $index = static::xsGetIndexIns();
+            if (!$index) {
                 return;
             }
 
@@ -44,6 +54,21 @@ trait XSIndex
             }
 
             $index->close();
+        });
+
+        static::deleted(function (XSIndexable $model) {
+            // 如果是软删除，则不用删除对应的索引
+            if ($model->forceDeleting === false) {
+                return;
+            }
+
+            // 其他情况，要么没有 forceDeleting 属性，要么为 true，都是彻底删除
+            $index = static::xsGetIndexIns();
+            if (!$index) {
+                return;
+            }
+
+            $index->del($model->xsId());
         });
     }
 
