@@ -24,7 +24,7 @@ class ImageTest extends TestCase
 
         $this->postCreateResource('images', ['image' => $image])
             ->assertStatus(201)
-            ->assertJson(['src' => $filePath]);
+            ->assertJson(['src' => noneProtocol(asset($filePath))]);
 
         $this->assertFileExists(public_path($filePath));
     }

@@ -25,13 +25,13 @@ class XSIndex extends Command
         parent::__construct();
 
         $this->xs = app('XS');
-        $this->index = $this->xs->index;
-
-        $this->doc = new XSDocument();
     }
 
     public function handle()
     {
+        $this->index = $this->xs->index;
+        $this->doc = new XSDocument();
+
         $this->index->clean();
 
         $this->index(Note::showAll()->get());

@@ -11,8 +11,7 @@ class ImageController extends Controller
         $files = $this->handleUploadFile($request);
 
         return $this->created([
-            'src'    => $files['image'],
-            'origin' => $request->getSchemeAndHttpHost(),
+            'src' => '//' . explode('//', asset($files['image']))[1],
         ]);
     }
 }

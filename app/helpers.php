@@ -22,3 +22,21 @@ function get_desc(string $html_content, int $length = null): string
 
     return $content;
 }
+
+/**
+ * 去掉地址中的协议，留下 ‘//’ 开头
+ *
+ * @param string $url
+ *
+ * @return string
+ */
+function noneProtocol(string $url): string
+{
+    $t = explode('//', $url);
+
+    if (count($t) != 2) {
+        return $url;
+    }
+
+    return '//' . $t[1];
+}
