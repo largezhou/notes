@@ -23,14 +23,21 @@ class NoteController extends Controller
         return NoteResource::collection($notes)->except(['updated_at', 'created_at', 'content', 'html_content']);
     }
 
-    public function show(Note $note)
+    public function show(Request $request, Note $note)
     {
         $book = $note->book()->withCount('notes')->first();
         abort_if(!$book, 404);
         $note->load('tags');
 
+        $noteRes = NoteResource::make($note);
+
+        if ($only = $request->get('only', '')) {
+            $only = explode(',', $only);
+            $noteRes->only($only);
+        }
+
         return [
-            'note' => NoteResource::make($note),
+            'note' => $noteRes,
             'book' => BookResource::make($book),
         ];
     }

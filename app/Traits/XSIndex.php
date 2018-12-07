@@ -12,7 +12,7 @@ trait XSIndex
     public static function bootXSIndex()
     {
         static::saved(function (XSIndexable $model) {
-            if (app()->runningUnitTests()) {
+            if (app()->runningUnitTests() || app()->runningInConsole()) {
                 return;
             }
 
