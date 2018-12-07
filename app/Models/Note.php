@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class Note extends BaseNote
 {
-    protected $fillable = ['book_id', 'page', 'title', 'desc', 'content', 'html_content', 'hidden', 'deleted_at'];
+    protected $fillable = ['book_id', 'page', 'desc', 'content', 'html_content', 'hidden', 'deleted_at'];
 
     protected static function addTypeGlobalScope()
     {

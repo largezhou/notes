@@ -17,7 +17,6 @@ class NoteRequest extends FormRequest
 
         $rules = [
             'page'         => 'bail|required|integer|max:' . $book->total,
-            'title'        => 'bail|nullable|string|max:255',
             'desc'         => 'bail|nullable|string|max:255',
             'content'      => 'bail|required|string|max:60000',
             'html_content' => 'bail|required|string|max:60000',
@@ -35,7 +34,6 @@ class NoteRequest extends FormRequest
     {
         return [
             'page'    => '页数',
-            'title'   => '标题',
             'desc'    => '描述',
             'content' => '内容',
             'tags'    => '标签',

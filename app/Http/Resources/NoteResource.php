@@ -12,7 +12,6 @@ class NoteResource extends JsonResource
 
         return [
             'id'           => $this->id,
-            'title'        => $this->title,
             'page'         => $this->page,
             'desc'         => $this->desc,
             'content'      => $this->content,

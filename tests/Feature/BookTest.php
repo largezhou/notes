@@ -140,11 +140,12 @@ class BookTest extends TestCase
         ]);
 
         // 正常软删除
+        $deletedAt = (string) Carbon::now();
         $this->destroyResource('books', 2)
             ->assertStatus(204);
         $this->assertDatabaseHas('books', [
             'id'         => 2,
-            'deleted_at' => Carbon::now(),
+            'deleted_at' => $deletedAt,
         ]);
     }
 

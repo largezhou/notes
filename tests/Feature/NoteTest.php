@@ -261,7 +261,6 @@ class NoteTest extends TestCase
 
         $updateData = [
             'page'         => 2,
-            'title'        => 'update tit',
             'desc'         => 'update desc',
             'content'      => 'update content',
             'html_content' => 'update html_content',
