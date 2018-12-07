@@ -78,7 +78,7 @@ class NoteTest extends TestCase
         // 只获取某个字段
         $this->getResource('notes', $bookNotes[2]->id, ['only' => 'html_content'])
             ->assertStatus(200)
-            ->assertDontSee('desc');
+            ->assertJson(['html_content' => $bookNotes[2]->html_content]);
 
         $this->login();
         Model::clearBootedModels();
