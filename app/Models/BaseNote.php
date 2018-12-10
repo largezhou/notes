@@ -65,7 +65,7 @@ class BaseNote extends Model implements XSIndexable
 
     public function xsTitle(): string
     {
-        return $this->title ?? '';
+        throw new \Exception('必须继承该方法');
     }
 
     public function xsId(): string

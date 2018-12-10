@@ -25,4 +25,9 @@ class Post extends BaseNote
     {
         return "post-{$this->id}";
     }
+
+    public function xsTitle(): string
+    {
+        return $this->title;
+    }
 }

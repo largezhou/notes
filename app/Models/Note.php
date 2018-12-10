@@ -25,4 +25,9 @@ class Note extends BaseNote
     {
         return "note-{$this->id}";
     }
+
+    public function xsTitle(): string
+    {
+        return $this->book->title . ' • ' . $this->page;
+    }
 }
