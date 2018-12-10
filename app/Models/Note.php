@@ -28,6 +28,6 @@ class Note extends BaseNote
 
     public function xsTitle(): string
     {
-        return $this->book->title . ' • ' . $this->page;
+        return $this->book->title . ' • 第' . $this->page . '页';
     }
 }
