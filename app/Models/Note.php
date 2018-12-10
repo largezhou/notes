@@ -30,4 +30,13 @@ class Note extends BaseNote
     {
         return $this->book->title . ' • 第' . $this->page . '页';
     }
+
+    public function xsIndexFields(): array
+    {
+        return [
+            'title',
+            'html_content',
+            'page',
+        ];
+    }
 }
