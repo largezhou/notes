@@ -6,19 +6,14 @@ class TagResource extends JsonResource
 {
     public function data($request)
     {
-        $counts = null;
-        if (isset($this->notes_count) && isset($this->posts_count)) {
-            $counts = $this->notes_count + $this->posts_count;
-        }
-
         return [
-            'id'    => $this->id,
-            'name'  => $this->name,
-            'count' => $this->when(isset($counts), $counts),
-            'notes' => NoteResource::collection($this->whenLoaded('notes'))
-                ->except(['content', 'html_content', 'created_at', 'deleted_at']),
-            'posts' => PostResource::collection($this->whenLoaded('posts'))
-                ->except(['content', 'html_content', 'created_at', 'deleted_at']),
+            'id'            => $this->id,
+            'name'          => $this->name,
+            'notes'         => NoteResource::collection($this->whenLoaded('notes'))
+                ->except(['content', 'html_content', 'created_at']),
+            'posts'         => PostResource::collection($this->whenLoaded('posts'))
+                ->except(['content', 'html_content', 'created_at']),
+            'targets_count' => $this->when(isset($this->targets_count), $this->targets_count),
         ];
     }
 }

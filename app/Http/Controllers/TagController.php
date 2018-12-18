@@ -13,13 +13,12 @@ class TagController extends Controller
     public function index(TagFilter $tagFilter, Tag $tag)
     {
         $tags = $tag
-            ->withCount('notes')
-            ->withCount('posts')
+            ->withCount(['targets' => function ($query) {
+                $query->whereHas('baseNote');
+            }])
+            ->orderByDesc('targets_count')
             ->filter($tagFilter)
-            ->get()
-            ->sortByDesc(function ($tag) {
-                return $tag->notes_count + $tag->posts_count;
-            });
+            ->get();
 
         return TagResource::collection($tags);
     }
@@ -41,8 +40,7 @@ class TagController extends Controller
     public function show(Tag $tag)
     {
         $tag->load(['notes', 'posts', 'notes.book', 'notes.tags', 'posts.tags']);
-        $tag->setAttribute('notes_count', $tag->notes->count());
-        $tag->setAttribute('posts_count', $tag->posts->count());
+        $tag->setAttribute('targets_count', $tag->targets()->whereHas('baseNote')->count());
 
         return TagResource::make($tag);
     }

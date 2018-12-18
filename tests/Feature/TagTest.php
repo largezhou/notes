@@ -32,19 +32,19 @@ class TagTest extends TestCase
         $res->assertJsonCount(Tag::HOT_COUNT)
             ->assertSeeInOrder([
                 json_encode([
-                    'id'    => $tags[2]->id,
-                    'name'  => $tags[2]->name,
-                    'count' => 7,
+                    'id'            => $tags[2]->id,
+                    'name'          => $tags[2]->name,
+                    'targets_count' => '7',
                 ]),
                 json_encode([
-                    'id'    => $tags[0]->id,
-                    'name'  => $tags[0]->name,
-                    'count' => 5,
+                    'id'            => $tags[0]->id,
+                    'name'          => $tags[0]->name,
+                    'targets_count' => '5',
                 ]),
                 json_encode([
-                    'id'    => $tags[1]->id,
-                    'name'  => $tags[1]->name,
-                    'count' => 3,
+                    'id'            => $tags[1]->id,
+                    'name'          => $tags[1]->name,
+                    'targets_count' => '3',
                 ]),
             ]);
 
