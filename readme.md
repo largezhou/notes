@@ -1,3 +1,7 @@
+## 展示
+
+[http://notes.lzis.me](http://notes.lzis.me)
+
 ## 安装
 `composer install`
 
