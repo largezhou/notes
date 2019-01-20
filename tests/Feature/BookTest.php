@@ -19,6 +19,11 @@ class BookTest extends TestCase
     use DatabaseMigrations;
     use RequestActions;
 
+    protected function getNotes(int $bookId, array $params = [])
+    {
+        return $this->json('get', route('books.notes', ['book' => $bookId]), $params);
+    }
+
     public function testPostCreateBook()
     {
         // 未登录
@@ -193,8 +198,7 @@ class BookTest extends TestCase
             ->assertStatus(200)
             ->assertDontSee('hidden')
             ->assertDontSee('deleted_at')
-            ->assertJsonFragment(['notes_count' => 8])
-            ->assertJsonCount(8, 'notes');
+            ->assertJsonFragment(['notes_count' => 8]);
 
         // 登录的情况下
         Model::clearBootedModels();
@@ -208,13 +212,11 @@ class BookTest extends TestCase
         $this->getResource('books', 2)
             ->assertJsonFragment(['hidden' => '1'])
             ->assertJsonFragment(['deleted_at' => null])
-            ->assertJsonFragment(['notes_count' => 9])
-            ->assertJsonCount(9, 'notes');
+            ->assertJsonFragment(['notes_count' => 9]);
 
         // 笔记编辑模式显示所有
         $this->getResource('books', 2, [], true)
-            ->assertJsonFragment(['notes_count' => 10])
-            ->assertJsonCount(10, 'notes');
+            ->assertJsonFragment(['notes_count' => 10]);
     }
 
     public function testBookNotesSort()
@@ -223,24 +225,24 @@ class BookTest extends TestCase
         $this->prepareNotes();
 
         // 默认笔记所属页数倒序
-        $this->assertOrderBy($this->getResource('books', 4), 'page', 'desc', 'notes');
+        $this->assertOrderBy($this->getNotes(4), 'page', 'desc', 'data');
         // 不提供排序类型，则忽略
-        $this->assertOrderBy($this->getResource('books', 4, ['_sort_field' => 'created_at']), 'page', 'desc', 'notes');
+        $this->assertOrderBy($this->getNotes(4, ['_sort_field' => 'created_at']), 'page', 'desc', 'data');
 
-        $this->assertOrderBy($this->getResource('books', 4, [
+        $this->assertOrderBy($this->getNotes(4, [
             '_sort_field' => 'page',
             '_sort_type'  => 'asc',
-        ]), 'page', 'asc', 'notes');
+        ]), 'page', 'asc', 'data');
 
-        $this->assertOrderBy($this->getResource('books', 4, [
+        $this->assertOrderBy($this->getNotes(4, [
             '_sort_field' => 'created_at',
             '_sort_type'  => 'asc',
-        ]), 'created_at', 'dsc', 'notes');
+        ]), 'created_at', 'dsc', 'data');
 
-        $this->assertOrderBy($this->getResource('books', 4, [
+        $this->assertOrderBy($this->getNotes(4, [
             '_sort_field' => 'created_at',
             '_sort_type'  => 'desc',
-        ]), 'created_at', 'desc', 'notes');
+        ]), 'created_at', 'desc', 'data');
     }
 
     public function testUpdateHidden()

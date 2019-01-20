@@ -12,6 +12,11 @@ use Illuminate\Http\Request;
 
 class BookController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth')->except(['index', 'show', 'notes']);
+    }
+
     public function index()
     {
         $books = Book::withCount('notes')->orderBy('updated_at', 'desc')->filter(app(BookFilter::class))->get();
@@ -30,13 +35,9 @@ class BookController extends Controller
 
     public function show(Book $book)
     {
-        $notes = $book->notes()->with('tags')->filter(app(NoteFilter::class))->orderBy('page', 'desc')->get();
-        $book->setAttribute('notes_count', $notes->count());
+        $book->setAttribute('notes_count', $book->notes()->count());
 
-        return [
-            'book'  => BookResource::make($book),
-            'notes' => NoteResource::collection($notes)->except(['updated_at', 'content', 'html_content']),
-        ];
+        return BookResource::make($book);
     }
 
     public function destroy(Book $book)
@@ -61,5 +62,23 @@ class BookController extends Controller
         $book->setAttribute('notes_count', $book->notes()->count());
 
         return BookResource::make($book);
+    }
+
+    public function notes(Request $request, Book $book)
+    {
+        $sortType = $request->get('_sort_type', 'desc');
+        if (!in_array($sortType, ['desc', 'asc'])) {
+            $sortType = 'desc';
+        }
+
+        $notes = $book
+            ->notes()
+            ->with('tags')
+            ->filter(app(NoteFilter::class))
+            ->orderBy('page', $sortType)
+            ->orderBy('id', $sortType)
+            ->paginate();
+
+        return NoteResource::collection($notes)->except(['updated_at', 'content', 'html_content']);
     }
 }
