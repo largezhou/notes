@@ -35,3 +35,5 @@ Route::delete('deleted-posts/{deletedPost}', 'PostController@forceDestroy')->nam
 Route::resource('posts', 'PostController');
 
 Route::get('search', 'SearchController@search')->name('search');
+
+Route::post('backups', 'BackupController@store')->name('backup');
