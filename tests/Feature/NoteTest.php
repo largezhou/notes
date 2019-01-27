@@ -145,17 +145,6 @@ class NoteTest extends TestCase
         $testData['book_id'] = $book->id;
         $this->assertDatabaseHas('notes', $testData);
         $this->assertDatabaseHas('books', ['id' => $book->id, 'read' => $testData['page']]);
-
-        Note::truncate();
-
-        // 测试自动获取 desc
-        $testData = $noteData;
-        $testData['desc'] = null;
-        $testData['html_content'] = '<pre><code>alert(1);</code></pre><p>1中2文3啊4<code>alert(2);</code></p><code></code><code>';
-        $this->createNote(3, $testData)
-            ->assertStatus(201);
-        $testData['desc'] = '1中2文3啊4alert(2);';
-        $this->assertDatabaseHas('notes', $testData);
     }
 
     public function testCreateNoteWithTags()
@@ -265,7 +254,7 @@ class NoteTest extends TestCase
 
         $updateData = [
             'page'         => 2,
-            'desc'         => 'update desc',
+            'title'         => 'update title',
             'content'      => 'update content',
             'html_content' => 'update html_content',
         ];
@@ -278,15 +267,6 @@ class NoteTest extends TestCase
             'id'   => $book->id,
             'read' => 2,
         ]);
-
-        // 自动 desc
-        $updateData['desc'] = null;
-        $updateData['html_content'] = '<pre><code>alert(1);</code></pre><p>1中2文3啊4<code>alert(2);</code></p><code></code><code>';
-
-        $this->updateResource('notes', 1, $updateData)
-            ->assertStatus(200);
-        $updateData['desc'] = '1中2文3啊4alert(2);';
-        $this->assertDatabaseHas('notes', $updateData + ['id' => 1]);
     }
 
     public function testUpdateNoteWithTags()

@@ -53,7 +53,7 @@ $factory->define(App\Models\Book::class, function (Faker $faker) {
 $factory->define(App\Models\Note::class, function (Faker $faker) {
     return [
         'book_id'      => mt_rand(1, 1000),
-        'desc'         => $faker->sentence,
+        'title'        => $faker->sentence,
         'content'      => $faker->paragraph(10),
         'html_content' => '<h1>HTML_CONTENT</h1>' . $faker->paragraph(10),
         'page'         => mt_rand(1, 1000),

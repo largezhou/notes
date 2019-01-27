@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Note;
 use Illuminate\Foundation\Http\FormRequest;
 
 class NoteRequest extends FormRequest
@@ -16,11 +15,11 @@ class NoteRequest extends FormRequest
         }
 
         $rules = [
-            'page'         => 'bail|required|integer|max:' . $book->total,
-            'desc'         => 'bail|nullable|string|max:255',
-            'content'      => 'bail|required|string|max:60000',
+            'page' => 'bail|required|integer|max:'.$book->total,
+            'title' => 'bail|required|string|max:255',
+            'content' => 'bail|required|string|max:60000',
             'html_content' => 'bail|required|string|max:60000',
-            'tags'         => 'array',
+            'tags' => 'array',
         ];
 
         if ($this->isMethod('put')) {
@@ -33,17 +32,17 @@ class NoteRequest extends FormRequest
     public function attributes()
     {
         return [
-            'page'    => '页数',
-            'desc'    => '描述',
+            'page' => '页数',
+            'title' => '标题',
             'content' => '内容',
-            'tags'    => '标签',
+            'tags' => '标签',
         ];
     }
 
     public function messages()
     {
         return [
-            'page.max'   => ':attribute不能超过:max页',
+            'page.max' => ':attribute不能超过:max页',
             'tags.array' => ':attribute数据格式不对',
         ];
     }

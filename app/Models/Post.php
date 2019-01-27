@@ -9,9 +9,20 @@ class Post extends BaseNote
     protected $fillable = ['title', 'desc', 'content', 'html_content', 'hidden', 'deleted_at'];
 
     protected $attributes = [
-        'page'    => 0,
+        'page' => 0,
         'book_id' => 0,
     ];
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::saving(function (Post $post) {
+            if (!$post->desc) {
+                $post->desc = get_desc($post->html_content, 100);
+            }
+        });
+    }
 
     protected static function addTypeGlobalScope()
     {
@@ -24,10 +35,5 @@ class Post extends BaseNote
     public function xsId(): string
     {
         return "post-{$this->id}";
-    }
-
-    public function xsTitle(): string
-    {
-        return $this->title;
     }
 }

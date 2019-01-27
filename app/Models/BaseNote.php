@@ -20,12 +20,6 @@ class BaseNote extends Model implements XSIndexable
         parent::boot();
 
         static::addTypeGlobalScope();
-
-        static::saving(function (BaseNote $note) {
-            if (!$note->desc) {
-                $note->desc = get_desc($note->html_content, 100);
-            }
-        });
     }
 
     protected static function addTypeGlobalScope()
@@ -65,7 +59,7 @@ class BaseNote extends Model implements XSIndexable
 
     public function xsTitle(): string
     {
-        throw new \Exception('必须继承该方法');
+        return $this->title;
     }
 
     public function xsId(): string

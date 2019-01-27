@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class Note extends BaseNote
 {
-    protected $fillable = ['book_id', 'page', 'desc', 'content', 'html_content', 'hidden', 'deleted_at'];
+    protected $fillable = ['book_id', 'page', 'title', 'content', 'html_content', 'hidden', 'deleted_at'];
 
     protected static function addTypeGlobalScope()
     {
@@ -24,19 +24,5 @@ class Note extends BaseNote
     public function xsId(): string
     {
         return "note-{$this->id}";
-    }
-
-    public function xsTitle(): string
-    {
-        return $this->book->title . ' • 第' . $this->page . '页';
-    }
-
-    public function xsIndexFields(): array
-    {
-        return [
-            'title',
-            'html_content',
-            'page',
-        ];
     }
 }
