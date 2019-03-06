@@ -14,9 +14,9 @@ class CreateModelTagsTable extends Migration
     public function up()
     {
         Schema::create('model_tags', function (Blueprint $table) {
-            $table->integer('tag_id');
-            $table->integer('target_id');
-            $table->string('target_type');
+            $table->integer('tag_id')->index();
+            $table->integer('target_id')->index();
+            $table->string('target_type')->index();
         });
     }
 
