@@ -8,8 +8,6 @@ class CreateReadRecordsTable extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
     public function up()
     {
@@ -17,14 +15,12 @@ class CreateReadRecordsTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('book_id')->index();
             $table->smallInteger('read');
-            $table->timestamps();
+            $table->timestamp('created_at')->nullable();
         });
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
     public function down()
     {
