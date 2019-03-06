@@ -10,8 +10,6 @@ use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Traits\RequestActions;
 
 class BookTest extends TestCase
@@ -50,7 +48,7 @@ class BookTest extends TestCase
         $res = $this->postCreateResource('books', $input);
         $res->assertStatus(201);
         $this->assertDatabaseHas('books', [
-            'id'   => 1,
+            'id' => 1,
             'read' => 0,
         ]);
 
@@ -59,14 +57,14 @@ class BookTest extends TestCase
         $res = $this->postCreateResource('books', $input);
         $res->assertStatus(201);
         $this->assertDatabaseHas('books', [
-            'id'   => 1,
+            'id' => 1,
             'read' => 0,
         ]);
 
         // 已读大于总页数
         $input = $book;
         $input['read'] = $input['total'] + 1;
-        $this->seeErrorText($this->postCreateResource('books', $input), '不能大于' . $input['total']);
+        $this->seeErrorText($this->postCreateResource('books', $input), '不能大于'.$input['total']);
 
         // 日期格式不对
         $input = $book;
@@ -90,7 +88,7 @@ class BookTest extends TestCase
             ->assertSee('id');
 
         $seeData = $input;
-        $seeData['cover'] = '/uploads/' . md5_file($input['cover']) . '.jpg';
+        $seeData['cover'] = '/uploads/'.md5_file($input['cover']).'.jpg';
         $seeData['read'] = 0;
         $this->assertDatabaseHas('books', $seeData);
     }
@@ -140,7 +138,7 @@ class BookTest extends TestCase
         // 编辑模式查询到也只是软删除
         $this->destroyResource('books', 1, true)->assertStatus(204);
         $this->assertDatabaseHas('books', [
-            'id'         => 1,
+            'id' => 1,
             'deleted_at' => Book::find(1)->deleted_at,
         ]);
 
@@ -149,7 +147,7 @@ class BookTest extends TestCase
         $this->destroyResource('books', 2)
             ->assertStatus(204);
         $this->assertDatabaseHas('books', [
-            'id'         => 2,
+            'id' => 2,
             'deleted_at' => $deletedAt,
         ]);
     }
@@ -161,7 +159,6 @@ class BookTest extends TestCase
         $this->forceDestroyResource('books', 1, true)->assertStatus(404);
         $this->forceDestroyResource('books', 2, true)->assertStatus(404);
         $this->forceDestroyResource('books', 3, true)->assertStatus(404);
-
 
         Model::clearBootedModels();
         $this->login();
@@ -181,8 +178,8 @@ class BookTest extends TestCase
         $this->assertDatabaseMissing('books', ['id' => 1]);
         $this->assertDatabaseMissing('notes', ['id' => 1]);
         $this->assertDatabaseMissing('model_tags', [
-            'tag_id'      => 1,
-            'target_id'   => 1,
+            'tag_id' => 1,
+            'target_id' => 1,
             'target_type' => 'notes',
         ]);
     }
@@ -231,17 +228,17 @@ class BookTest extends TestCase
 
         $this->assertOrderBy($this->getNotes(4, [
             '_sort_field' => 'page',
-            '_sort_type'  => 'asc',
+            '_sort_type' => 'asc',
         ]), 'page', 'asc', 'data');
 
         $this->assertOrderBy($this->getNotes(4, [
             '_sort_field' => 'created_at',
-            '_sort_type'  => 'asc',
+            '_sort_type' => 'asc',
         ]), 'created_at', 'dsc', 'data');
 
         $this->assertOrderBy($this->getNotes(4, [
             '_sort_field' => 'created_at',
-            '_sort_type'  => 'desc',
+            '_sort_type' => 'desc',
         ]), 'created_at', 'desc', 'data');
     }
 
@@ -301,7 +298,7 @@ class BookTest extends TestCase
         // 更新正确的封面
         $input['cover'] = UploadedFile::fake()->image('cover.jpg');
         $this->updateResource('books', 3, $input)->assertStatus(200);
-        $input['cover'] = '/uploads/' . md5_file($input['cover']) . '.jpg';
+        $input['cover'] = '/uploads/'.md5_file($input['cover']).'.jpg';
         $this->assertDatabaseHas('books', $input);
 
         $book['cover'] = asset($input['cover']);
@@ -328,7 +325,7 @@ class BookTest extends TestCase
 
         $this->updateResource('books', 3, ['read' => '10000'])
             ->assertStatus(422)
-            ->assertSee(json_encode(['read' => ['已读不能大于' . $book->total]]))
+            ->assertSee(json_encode(['read' => ['已读不能大于'.$book->total]]))
             ->assertDontSee('total');
 
         // 只更新 total
@@ -339,7 +336,7 @@ class BookTest extends TestCase
 
         $this->updateResource('books', 3, ['total' => '1'])
             ->assertStatus(422)
-            ->assertSee(json_encode(['total' => ['总页数不能小于' . $book->read]]))
+            ->assertSee(json_encode(['total' => ['总页数不能小于'.$book->read]]))
             ->assertDontSee('read');
 
         // read 和 total 同时更新
@@ -350,5 +347,38 @@ class BookTest extends TestCase
         $this->updateResource('books', 3, ['read' => 50, 'total' => 100])
             ->assertStatus(200);
         $this->assertDatabaseHas('books', ['id' => 3, 'read' => 50, 'total' => 100]);
+    }
+
+    public function testRecordRead()
+    {
+        $this->login();
+        $book = create(Book::class);
+
+        // 更新了页数
+        $book->read += 5;
+        $this->updateResource('books', $book->id, [
+            'read' => $book->read,
+            'total' => $book->total,
+        ])->assertStatus(200);
+
+        $this->assertDatabaseHas('read_records', [
+            'book_id' => $book->id,
+            'read' => 5,
+            'created_at' => (string) Carbon::now(),
+        ]);
+    }
+
+    public function testDoNotRecordRead()
+    {
+        $this->login();
+
+        $book = create(Book::class);
+
+        $this->updateResource('books', $book->id, [
+            'total' => (string) ($book->total + 1),
+        ])->assertStatus(200);
+        $this->assertDatabaseMissing('read_records', [
+            'created_at' => (string) Carbon::now(),
+        ]);
     }
 }

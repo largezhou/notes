@@ -20,6 +20,21 @@ class Book extends Model implements XSIndexable
 
     protected $fillable = ['title', 'total', 'read', 'started_at', 'cover', 'hidden', 'deleted_at'];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::updated(function (Book $model) {
+            if ($model->isDirty('read')) {
+                $model
+                    ->readRecords()
+                    ->create([
+                        'read' => $model->read - $model->getOriginal('read'),
+                    ]);
+            }
+        });
+    }
+
     public function setReadAttribute($value)
     {
         if (is_null($value)) {
@@ -66,5 +81,10 @@ class Book extends Model implements XSIndexable
     public function xsIndexFields(): array
     {
         return ['title'];
+    }
+
+    public function readRecords()
+    {
+        return $this->hasMany(ReadRecord::class);
     }
 }
