@@ -37,3 +37,5 @@ Route::resource('posts', 'PostController');
 Route::get('search', 'SearchController@search')->name('search');
 
 Route::post('backups', 'BackupController@store')->name('backup');
+
+Route::get('read-records', 'ReadRecordController@index')->name('read_records.index');

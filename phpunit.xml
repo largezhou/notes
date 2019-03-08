@@ -30,6 +30,9 @@
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="DB_CONNECTION" value="sqlite"/>
         <env name="DB_DATABASE" value=":memory:"/>
+        <!--读书记录中，使用了 date_format SQL函数，SQLITE 不支持，会在测试中临时改为该配置-->
+        <!--<env name="DB_CONNECTION" value="mysql"/>-->
+        <!--<env name="DB_DATABASE" value="notes_test"/>-->
         <env name="CACHE_DRIVER" value="array"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="QUEUE_DRIVER" value="sync"/>
