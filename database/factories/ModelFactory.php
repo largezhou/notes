@@ -88,6 +88,6 @@ $factory->define(\App\Models\ReadRecord::class, function (Faker $faker) {
     return [
         'book_id' => mt_rand(1, 1000),
         'read' => mt_rand(1, 20),
-        'created_at' => $faker->dateTimeBetween('-1 weeks')->format('Y-m-d H:i:s'),
+        'created_at' => $faker->dateTimeBetween('-2 months')->format('Y-m-d H:i:s'),
     ];
 });

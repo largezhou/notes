@@ -37,7 +37,7 @@ class ReadRecord extends Model
             ->select($dataFormatSQL)
             ->groupBy('day')
             ->orderBy('day', 'desc')
-            ->offset($currentPage - 1)
+            ->offset($perPage * ($currentPage - 1))
             ->limit($perPage)
             ->pluck('day');
 

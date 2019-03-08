@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Note;
+use App\Models\ReadRecord;
 use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -33,6 +34,17 @@ class BookTableSeeder extends Seeder
             });
 
             $book->notes()->saveMany($notesData);
+            $recordsData = factory(ReadRecord::class, mt_rand(10, 20))->make();
+            $book->readRecords()->saveMany($recordsData);
+
+            // 随机隐藏和软删除
+            if (mt_rand(1, 10) > 9) {
+                $book->delete();
+            }
+
+            if (mt_rand(1, 10) > 8) {
+                $book->update(['hidden' => true]);
+            }
         });
     }
 }
@@ -64,7 +76,7 @@ class UserTableSeeder extends Seeder
     public function run()
     {
         factory(User::class, 1)->create([
-            'username'  => 'largezhou',
+            'username' => 'largezhou',
             'password' => bcrypt('000000'),
         ]);
     }
