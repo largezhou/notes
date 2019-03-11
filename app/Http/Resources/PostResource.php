@@ -12,6 +12,7 @@ class PostResource extends JsonResource
             'desc'         => $this->desc,
             'content'      => $this->content,
             'html_content' => $this->html_content,
+            'is_top'       => $this->is_top,
             'hidden'       => $this->hidden,
             'deleted_at'   => $this->deleted_at,
             'created_at'   => $this->created_at,

@@ -11,7 +11,9 @@ class PostController extends Controller
 {
     public function index()
     {
-        $posts = Post::latest()
+        $posts = Post::query()
+            ->topOrder()
+            ->latest()
             ->with('tags')
             ->paginate();
 

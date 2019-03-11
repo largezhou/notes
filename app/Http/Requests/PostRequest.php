@@ -16,6 +16,7 @@ class PostRequest extends FormRequest
             'tags'         => 'array',
             'hidden'       => 'filled|boolean',
             'deleted_at'   => 'nullable|date',
+            'is_top'       => 'filled|boolean',
         ];
 
         if ($this->isMethod('put')) {

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class Post extends BaseNote
 {
-    protected $fillable = ['title', 'desc', 'content', 'html_content', 'hidden', 'deleted_at'];
+    protected $fillable = ['title', 'desc', 'content', 'html_content', 'hidden', 'deleted_at', 'is_top'];
 
     protected $attributes = [
         'page' => 0,
@@ -35,5 +35,10 @@ class Post extends BaseNote
     public function xsId(): string
     {
         return "post-{$this->id}";
+    }
+
+    public function scopeTopOrder(Builder $builder)
+    {
+        $builder->orderByDesc('is_top');
     }
 }
