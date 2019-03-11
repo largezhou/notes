@@ -12,7 +12,7 @@ class NotesTableAddIsTopColumn extends Migration
     public function up()
     {
         Schema::table('notes', function (Blueprint $table) {
-            $table->unsignedTinyInteger('is_top');
+            $table->unsignedTinyInteger('is_top')->default(0);
         });
     }
 

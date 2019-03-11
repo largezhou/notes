@@ -60,6 +60,7 @@ $factory->define(App\Models\Note::class, function (Faker $faker) {
         'updated_at' => $faker->dateTimeBetween('-2 months')->format('Y-m-d H:i:s'),
         'deleted_at' => null,
         'hidden' => false,
+        'is_top' => false,
     ];
 });
 
@@ -81,6 +82,7 @@ $factory->define(App\Models\Post::class, function (Faker $faker) {
         'updated_at' => $faker->dateTimeBetween('-2 months')->format('Y-m-d H:i:s'),
         'deleted_at' => null,
         'hidden' => false,
+        'is_top' => false,
     ];
 });
 
