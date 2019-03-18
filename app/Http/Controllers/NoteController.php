@@ -78,7 +78,7 @@ class NoteController extends Controller
     {
         $note->update($request->all());
 
-        if ($tags = $request->get('tags')) {
+        if (is_array($tags = $request->get('tags'))) {
             $note->handleSyncTags($tags);
         }
 

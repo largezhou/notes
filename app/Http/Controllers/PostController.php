@@ -58,7 +58,7 @@ class PostController extends Controller
     {
         $post->update($request->validated());
 
-        if ($tags = $request->get('tags')) {
+        if (is_array($tags = $request->get('tags'))) {
             $post->handleSyncTags($tags);
         }
 

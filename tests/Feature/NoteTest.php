@@ -300,5 +300,13 @@ class NoteTest extends TestCase
 
         $p['tag_id'] = 1;
         $this->assertDatabaseMissing('model_tags', $p);
+
+        // 测试清除 tags
+        $this->updateResource('notes', $note->id, [
+            'tags' => [],
+        ]);
+        $this->assertDatabaseMissing('model_tags', [
+            'target_id' => $note->id,
+        ]);
     }
 }
