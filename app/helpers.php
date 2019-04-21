@@ -30,7 +30,7 @@ function get_desc(string $html_content, int $length = null): string
  *
  * @return string
  */
-function noneProtocol(string $url): string
+function none_protocol(string $url): string
 {
     $t = explode('//', $url);
 

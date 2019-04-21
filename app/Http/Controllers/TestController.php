@@ -14,6 +14,6 @@ class TestController extends Controller
 {
     public function test(Request $request, $path = null)
     {
-        dd(noneProtocol(asset('/uploads/5fa998e40113ad8c563040e44c182d20.png')));
+        dd(none_protocol(asset('/uploads/5fa998e40113ad8c563040e44c182d20.png')));
     }
 }
