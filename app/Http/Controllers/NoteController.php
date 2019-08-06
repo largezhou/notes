@@ -53,6 +53,8 @@ class NoteController extends Controller
         if ($request->get('mark_read')) {
             $book->read = $request->get('page');
             $book->save();
+        } else { // 如果没有标记读到此页，也要更新书籍的最后更新时间
+            $book->touch();
         }
 
         return $this->created([
@@ -82,10 +84,12 @@ class NoteController extends Controller
             $note->handleSyncTags($tags);
         }
 
+        $book = $note->book;
         if ($request->get('mark_read')) {
-            $book = $note->book;
             $book->read = $request->get('page');
             $book->save();
+        } else { // 如果没有标记读到此页，也要更新书籍的最后更新时间
+            $book->touch();
         }
 
         return NoteResource::make($note);

@@ -128,6 +128,10 @@ class NoteTest extends TestCase
         $res = $this->createNote(3, $testData);
         $this->assertJsonContains('数据格式不对', $res->getContent());
 
+        Book::unguard();
+        $book->update(['updated_at' => '2000-12-12 12:12:12']);
+        Book::reguard();
+
         // 创建成功，没有标记为读到此页
         $this->createNote(3, $noteData)
             ->assertStatus(201)
@@ -136,7 +140,11 @@ class NoteTest extends TestCase
         $testData = array_except($noteData, ['created_at', 'updated_at']);
         $testData['book_id'] = $book->id;
         $this->assertDatabaseHas('notes', $testData);
-        $this->assertDatabaseHas('books', ['id' => $book->id, 'read' => $book->read]);
+        $this->assertDatabaseHas('books', [
+            'id' => $book->id,
+            'read' => $book->read,
+            'updated_at' => now(),
+        ]);
 
         Note::truncate();
 
@@ -165,14 +173,14 @@ class NoteTest extends TestCase
 
         $this->assertDatabaseHas('tags', ['name' => $newTag]);
         $this->assertDatabaseHas('model_tags', [
-            'tag_id'      => $existsTag['id'],
-            'target_id'   => 1,
+            'tag_id' => $existsTag['id'],
+            'target_id' => 1,
             'target_type' => 'notes',
         ]);
 
         $this->assertDatabaseHas('model_tags', [
-            'tag_id'      => 2,
-            'target_id'   => 1,
+            'tag_id' => 2,
+            'target_id' => 1,
             'target_type' => 'notes',
         ]);
     }
@@ -209,9 +217,9 @@ class NoteTest extends TestCase
         $this->forceDestroyResource('notes', 1)->assertStatus(204);
         $this->assertDatabaseMissing('notes', ['id' => 1]);
         $this->assertDatabaseMissing('model_tags', [
-            'target_id'   => 1,
+            'target_id' => 1,
             'target_type' => 'notes',
-            'tag_id'      => 1,
+            'tag_id' => 1,
         ]);
     }
 
@@ -253,9 +261,9 @@ class NoteTest extends TestCase
         $this->assertJsonContains("不能超过{$book->total}页", $res->getContent());
 
         $updateData = [
-            'page'         => 2,
-            'title'         => 'update title',
-            'content'      => 'update content',
+            'page' => 2,
+            'title' => 'update title',
+            'content' => 'update content',
             'html_content' => 'update html_content',
         ];
 
@@ -264,8 +272,22 @@ class NoteTest extends TestCase
         $this->assertDatabaseHas('notes', $updateData + ['id' => 1]);
         // 更新时标记读到此页
         $this->assertDatabaseHas('books', [
-            'id'   => $book->id,
+            'id' => $book->id,
             'read' => 2,
+            'updated_at' => now(),
+        ]);
+
+        // 不更新书籍已读时，也要更新书籍的 updated_at 字段
+        // 先修改下书籍的 updated_at 字段
+        Book::unguard();
+        $book->update(['updated_at' => '2000-12-12 12:12:12']);
+
+        $this->updateResource('notes', 1, $updateData)
+            ->assertStatus(200);
+        $this->assertDatabaseHas('books', [
+            'id' => $book->id,
+            'read' => 2,
+            'updated_at' => now(),
         ]);
     }
 
@@ -288,7 +310,7 @@ class NoteTest extends TestCase
         $this->assertDatabaseHas('tags', ['name' => 'new tag']);
 
         $p = [
-            'target_id'   => $note->id,
+            'target_id' => $note->id,
             'target_type' => 'notes',
         ];
 
