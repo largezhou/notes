@@ -6,6 +6,7 @@ use App\Filters\TagFilter;
 use App\Http\Requests\TagRequest;
 use App\Http\Resources\TagResource;
 use App\Models\Tag;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Http\Request;
 
 class TagController extends Controller
@@ -13,9 +14,11 @@ class TagController extends Controller
     public function index(TagFilter $tagFilter, Tag $tag)
     {
         $tags = $tag
-            ->withCount(['targets' => function ($query) {
-                $query->whereHas('baseNote');
-            }])
+            ->withCount([
+                'targets' => function ($query) {
+                    $query->whereHas('baseNote');
+                },
+            ])
             ->orderByDesc('targets_count')
             ->filter($tagFilter)
             ->get();
@@ -39,8 +42,15 @@ class TagController extends Controller
 
     public function show(Tag $tag)
     {
-        $tag->load(['notes', 'posts', 'notes.book', 'notes.tags', 'posts.tags']);
-        $tag->setAttribute('targets_count', $tag->targets()->whereHas('baseNote')->count());
+        $tag->load([
+            'notes' => function (MorphToMany $query) {
+                $query->whereHas('book');
+            },
+            'posts',
+            'notes.book',
+            'notes.tags',
+            'posts.tags',
+        ]);
 
         return TagResource::make($tag);
     }
