@@ -14,6 +14,8 @@ class TagResource extends JsonResource
             'posts'         => PostResource::collection($this->whenLoaded('posts'))
                 ->except(['content', 'html_content', 'created_at']),
             'targets_count' => $this->when(isset($this->targets_count), $this->targets_count),
+            'notes_count' => $this->notes_count,
+            'posts_count' => $this->posts_count,
         ];
     }
 }

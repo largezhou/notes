@@ -11,15 +11,16 @@ use Illuminate\Http\Request;
 
 class TagController extends Controller
 {
-    public function index(TagFilter $tagFilter, Tag $tag)
+    public function index(TagFilter $tagFilter)
     {
-        $tags = $tag
+        $tags = Tag::query()
             ->withCount([
-                'targets' => function ($query) {
-                    $query->whereHas('baseNote');
+                'notes' => function ($query) {
+                    $query->whereHas('book');
                 },
+                'posts',
             ])
-            ->orderByDesc('targets_count')
+            ->orderByRaw('(notes_count + posts_count) desc')
             ->filter($tagFilter)
             ->get();
 
