@@ -67,7 +67,28 @@ class SearchController extends Controller
 
         $search->close();
 
+        $res = $this->utf8ize($res);
+
         return $res;
+    }
+
+    /**
+     * 转换编码，临时解决线上编码问题导致无法 json_encode 的 bug
+     *
+     * @param $mixed
+     *
+     * @return array|string|mixed
+     */
+    protected function utf8ize($mixed)
+    {
+        if (is_array($mixed)) {
+            foreach ($mixed as $key => $value) {
+                $mixed[$key] = $this->utf8ize($value);
+            }
+        } elseif (is_string($mixed)) {
+            return mb_convert_encoding($mixed, 'UTF-8', 'UTF-8');
+        }
+        return $mixed;
     }
 
     /**
@@ -83,7 +104,7 @@ class SearchController extends Controller
 
         if ($emPos === false) {
             return mb_substr($content, 0, self::CUT_LENGTH)
-                . (self::CUT_LENGTH >= mb_strlen($content) ? '' : '...');
+                .(self::CUT_LENGTH >= mb_strlen($content) ? '' : '...');
         }
 
         $cutStart = $emPos - self::CUT_LENGTH / 2;
@@ -92,7 +113,7 @@ class SearchController extends Controller
         $cutEnd = mb_strpos($content, '</em>', $emPos) + self::CUT_LENGTH / 2;
 
         return ($cutStart > 0 ? '...' : '')
-            . mb_substr($content, $cutStart, $cutEnd - $cutStart)
-            . ($cutEnd >= mb_strlen($content) ? '' : '...');
+            .mb_substr($content, $cutStart, $cutEnd - $cutStart)
+            .($cutEnd >= mb_strlen($content) ? '' : '...');
     }
 }
