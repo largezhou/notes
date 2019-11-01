@@ -15,9 +15,7 @@ class XSIndex extends Command
     protected $xs;
     protected $index;
     protected $doc;
-
     protected $signature = 'xs:index';
-
     protected $description = '重建所有索引';
 
     public function __construct()
@@ -34,7 +32,11 @@ class XSIndex extends Command
 
         $this->index->clean();
 
-        $this->index(Note::showAll()->get());
+        $this->index(Note::with([
+            'book' => function ($query) {
+                $query->showAll();
+            },
+        ])->showAll()->get());
         $this->index(Post::showAll()->get());
         $this->index(Book::showAll()->get());
 

@@ -98,8 +98,10 @@ trait XSIndex
             'id'      => strtolower($this->xsId()),
             'title'   => strtolower($this->xsTitle()),
             'content' => strtolower($this->xsContent()),
-            'hidden'  => (int) (bool) $this->getAttribute('hidden'),
-            'deleted' => (int) (bool) $this->deleted_at,
+            'hidden'  => (int) !!$this->getAttribute('hidden'),
+            'book_hidden'  => 0,
+            'deleted' => (int) !!$this->deleted_at,
+            'book_deleted' => 0,
         ];
     }
 }

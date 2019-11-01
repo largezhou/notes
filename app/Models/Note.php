@@ -25,4 +25,14 @@ class Note extends BaseNote
     {
         return "note-{$this->id}";
     }
+
+    public function xsDocData(): array
+    {
+        $data = parent::xsDocData();
+
+        $data['book_hidden'] = (int) !!$this->book->getAttribute('hidden');
+        $data['book_deleted'] = (int) !!$this->book->deleted_at;
+
+        return $data;
+    }
 }

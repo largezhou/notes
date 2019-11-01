@@ -40,9 +40,9 @@ class SearchController extends Controller
 
         // 软删除 和 隐藏的
         if (!auth()->check()) {
-            $q .= ' AND hidden:0 AND deleted:0';
+            $q .= ' AND (hidden:0 AND book_hidden:0) AND (deleted:0 AND book_deleted:0)';
         } elseif (!$request->header('Edit-Mode')) {
-            $q .= ' AND deleted:0';
+            $q .= ' AND (deleted:0 AND book_deleted:0)';
         }
 
         $res = $search->setQuery($q)->search();
