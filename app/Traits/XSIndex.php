@@ -28,8 +28,6 @@ trait XSIndex
             }
 
             static::xsUpdate($index, $model);
-
-            $index->close();
         });
 
         static::deleted(function (XSIndexable $model) {

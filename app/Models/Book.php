@@ -12,12 +12,10 @@ class Book extends Model implements XSIndexable
     use SoftDeletes;
     use CanHide;
     use XSIndex;
-
     /**
      * 书籍挂件的书籍数量
      */
     const VERY_RECENT_COUNT = 5;
-
     protected $fillable = ['title', 'total', 'read', 'started_at', 'cover', 'hidden', 'deleted_at'];
 
     protected static function boot()
@@ -31,6 +29,18 @@ class Book extends Model implements XSIndexable
                     ->create([
                         'read' => $model->read - $model->getOriginal('read'),
                     ]);
+            }
+        });
+
+        static::saved(function (Book $model) {
+            if ($model->isDirty(['hidden', 'deleted_at'])) {
+                $model->updateNotesXSIndex();
+            }
+        });
+
+        static::deleted(function (Book $model) {
+            if ($model->forceDeleting === false) {
+                $model->updateNotesXSIndex();
             }
         });
     }
@@ -86,5 +96,21 @@ class Book extends Model implements XSIndexable
     public function readRecords()
     {
         return $this->hasMany(ReadRecord::class);
+    }
+
+    /**
+     * 更新笔记的索引内容中 book_hidden 和 book_deleted
+     */
+    protected function updateNotesXSIndex()
+    {
+        $index = static::xsGetIndexIns();
+        if (!$index) {
+            return;
+        }
+
+        $this->notes->each(function (Note $note) use ($index) {
+            $note->setRelation('book', $this);
+            static::xsUpdate($index, $note);
+        });
     }
 }
