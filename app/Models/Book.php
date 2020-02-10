@@ -23,11 +23,12 @@ class Book extends Model implements XSIndexable
         parent::boot();
 
         static::updated(function (Book $model) {
-            if ($model->isDirty('read')) {
+            $read = $model->read - $model->getOriginal('read');
+            if ($read > 0) {
                 $model
                     ->readRecords()
                     ->create([
-                        'read' => $model->read - $model->getOriginal('read'),
+                        'read' => $read,
                     ]);
             }
         });
