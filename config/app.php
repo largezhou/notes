@@ -162,7 +162,8 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
-        \App\Providers\DropboxServiceProvider::class,
+        // \App\Providers\DropboxServiceProvider::class,
+        \App\Vendors\Cos\CosServiceProvider::class,
 
     ],
 

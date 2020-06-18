@@ -70,8 +70,11 @@ return [
         ],
 
         'backup' => [
-            'driver' => 'dropbox',
-            'access_token' => env('DROPBOX_ACCESS_TOKEN'),
+            'driver' => 'cos',
+            'bucket' => env('COS_BACKUP_BUCKET'),
+            'region' => env('COS_REGION'),
+            'secret_id' => env('COS_SECRET_ID'),
+            'secret_key' => env('COS_SECRET_KEY'),
         ],
 
     ],
