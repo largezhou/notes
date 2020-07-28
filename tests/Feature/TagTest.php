@@ -2,7 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Models\Book;
 use App\Models\Note;
+use App\Models\Post;
 use App\Models\Tag;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
@@ -18,7 +20,7 @@ class TagTest extends TestCase
     public function testGetTags()
     {
         $tags = create(Tag::class, [], 20);
-        create(Note::class, [], 10);
+        create(Note::class, ['book_id' => create(Book::class)->id], 10);
 
         // 测试获取所有标签
         $this->getResources('tags')->assertStatus(200)->assertJsonCount(20);
@@ -27,26 +29,30 @@ class TagTest extends TestCase
         $tags[0]->notes()->attach([1, 2, 3, 4, 5]);
         $tags[1]->notes()->attach([1, 2, 3]);
         $tags[2]->notes()->attach([1, 2, 3, 4, 5, 6, 7]);
+        $tags[2]->posts()->attach([create(Post::class)->id]);
 
         $res = $this->getResources('tags', ['scope' => 'hot']);
         $res->assertJsonCount(Tag::HOT_COUNT)
             ->assertSeeInOrder([
                 json_encode([
-                    'id'            => $tags[2]->id,
-                    'name'          => $tags[2]->name,
-                    'targets_count' => '7',
+                    'id' => $tags[2]->id,
+                    'name' => $tags[2]->name,
+                    'notes_count' => '7',
+                    'posts_count' => '1',
                 ]),
                 json_encode([
-                    'id'            => $tags[0]->id,
-                    'name'          => $tags[0]->name,
-                    'targets_count' => '5',
+                    'id' => $tags[0]->id,
+                    'name' => $tags[0]->name,
+                    'notes_count' => '5',
+                    'posts_count' => '0',
                 ]),
                 json_encode([
-                    'id'            => $tags[1]->id,
-                    'name'          => $tags[1]->name,
-                    'targets_count' => '3',
+                    'id' => $tags[1]->id,
+                    'name' => $tags[1]->name,
+                    'notes_count' => '3',
+                    'posts_count' => '0',
                 ]),
-            ]);
+            ], false);
 
         // 测试搜索标签
         create(Tag::class, ['name' => 'test 1']);
@@ -72,8 +78,8 @@ class TagTest extends TestCase
 
         $this->assertDatabaseMissing('tags', ['id' => 1]);
         $this->assertDatabaseMissing('model_tags', [
-            'tag_id'      => 1,
-            'target_id'   => $note->id,
+            'tag_id' => 1,
+            'target_id' => $note->id,
             'target_type' => 'notes',
         ]);
     }
@@ -93,7 +99,7 @@ class TagTest extends TestCase
 
         $this->updateResource('tags', 1, ['name' => 'updated'])->assertStatus(204);
         $this->assertDatabaseHas('tags', [
-            'id'   => 1,
+            'id' => 1,
             'name' => 'updated',
         ]);
     }

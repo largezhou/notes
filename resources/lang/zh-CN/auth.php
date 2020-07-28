@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'failed'   => '账号和密码不匹配咧！',
+    'failed' => '账号和密码不匹配咧！',
     'throttle' => 'Too many login attempts. Please try again in :seconds seconds.',
 
 ];

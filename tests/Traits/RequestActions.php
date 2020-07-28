@@ -2,7 +2,8 @@
 
 namespace Tests\Traits;
 
-use Illuminate\Foundation\Testing\TestResponse;
+use Illuminate\Support\Str;
+use Illuminate\Testing\TestResponse;
 
 trait RequestActions
 {
@@ -44,7 +45,7 @@ trait RequestActions
      */
     protected function destroyResource(string $name, int $id, bool $editMode = false): TestResponse
     {
-        return $this->json('delete', route("{$name}.destroy", [str_plural($name, 1) => $id]), [], ['Edit-Mode' => $editMode]);
+        return $this->json('delete', route("{$name}.destroy", [Str::singular($name) => $id]), [], ['Edit-Mode' => $editMode]);
     }
 
     /**
@@ -59,7 +60,7 @@ trait RequestActions
      */
     protected function forceDestroyResource(string $name, int $id, bool $editMode = false, string $deletedName = null): TestResponse
     {
-        $deletedName = $deletedName ?: 'deleted' . ucfirst(str_plural($name, 1));
+        $deletedName = $deletedName ?: 'deleted' . ucfirst(Str::singular($name));
 
         return $this->json('delete', route("{$name}.force_destroy", [$deletedName => $id]), [], ['Edit-Mode' => $editMode]);
     }
@@ -76,7 +77,7 @@ trait RequestActions
      */
     protected function getResource(string $name, int $id, array $params = [], bool $editMode = false): TestResponse
     {
-        return $this->json('get', route("{$name}.show", [str_plural($name, 1) => $id]), $params, ['Edit-Mode' => $editMode]);
+        return $this->json('get', route("{$name}.show", [Str::singular($name) => $id]), $params, ['Edit-Mode' => $editMode]);
     }
 
     /**
@@ -91,6 +92,6 @@ trait RequestActions
      */
     protected function updateResource(string $name, int $id, array $data = [], bool $editMode = false): TestResponse
     {
-        return $this->json('put', route("{$name}.update", [str_plural($name, 1) => $id]), $data, ['Edit-Mode' => $editMode]);
+        return $this->json('put', route("{$name}.update", [Str::singular($name) => $id]), $data, ['Edit-Mode' => $editMode]);
     }
 }

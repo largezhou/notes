@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use App\Filters\Filter;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class Model extends \Illuminate\Database\Eloquent\Model
@@ -14,6 +14,11 @@ class Model extends \Illuminate\Database\Eloquent\Model
         'updated_at' => 'string',
         'deleted_at' => 'string',
     ];
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
 
     protected static function boot()
     {

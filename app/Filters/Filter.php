@@ -3,6 +3,8 @@
 namespace App\Filters;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 abstract class Filter
 {
@@ -38,7 +40,7 @@ abstract class Filter
         $this->builder = $builder;
 
         foreach ($this->getFilters() as $filter => $value) {
-            $method = camel_case($filter);
+            $method = Str::camel($filter);
             if (method_exists($this, $method)) {
                 $this->$method($value);
             }
@@ -54,7 +56,7 @@ abstract class Filter
      */
     protected function getFilters()
     {
-        return array_only($this->data, $this->filters);
+        return Arr::only($this->data, $this->filters);
     }
 
     public function only(array $only)
@@ -66,7 +68,7 @@ abstract class Filter
 
     protected function sortField($field)
     {
-        if (!($type = array_get($this->data, '_sort_type'))) {
+        if (!($type = Arr::get($this->data, '_sort_type'))) {
             return;
         }
 

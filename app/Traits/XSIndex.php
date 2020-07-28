@@ -31,6 +31,10 @@ trait XSIndex
         });
 
         static::deleted(function (XSIndexable $model) {
+            if (app()->runningUnitTests() || app()->runningInConsole()) {
+                return;
+            }
+
             $index = static::xsGetIndexIns();
             if (!$index) {
                 return;

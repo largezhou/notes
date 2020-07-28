@@ -15,7 +15,7 @@ class PostTest extends TestCase
     use DatabaseMigrations;
     use RequestActions;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 

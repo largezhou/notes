@@ -124,8 +124,8 @@ class BookTest extends TestCase
         $this->prepareBooks();
 
         // 软删除和隐藏的 404
-        $this->destroyResource('books', 1, true)->assertStatus(404);
-        $this->destroyResource('books', 2, true)->assertStatus(404);
+        $this->destroyResource('books', 1, true)->assertStatus(401);
+        $this->destroyResource('books', 2, true)->assertStatus(401);
 
         // 正常的，401
         $this->destroyResource('books', 3, true)->assertStatus(401);
@@ -156,9 +156,9 @@ class BookTest extends TestCase
     {
         $this->prepareBooks();
 
-        $this->forceDestroyResource('books', 1, true)->assertStatus(404);
-        $this->forceDestroyResource('books', 2, true)->assertStatus(404);
-        $this->forceDestroyResource('books', 3, true)->assertStatus(404);
+        $this->forceDestroyResource('books', 1, true)->assertStatus(401);
+        $this->forceDestroyResource('books', 2, true)->assertStatus(401);
+        $this->forceDestroyResource('books', 3, true)->assertStatus(401);
 
         Model::clearBootedModels();
         $this->login();
@@ -246,8 +246,8 @@ class BookTest extends TestCase
     {
         $this->prepareBooks();
 
-        $this->updateResource('books', 1)->assertStatus(404);
-        $this->updateResource('books', 2)->assertStatus(404);
+        $this->updateResource('books', 1)->assertStatus(401);
+        $this->updateResource('books', 2)->assertStatus(401);
         $this->updateResource('books', 3)->assertStatus(401);
 
         Model::clearBootedModels();
@@ -320,23 +320,23 @@ class BookTest extends TestCase
         // 只更新 read
         $this->updateResource('books', 3, ['read' => 'not a numeric'])
             ->assertStatus(422)
-            ->assertSee(json_encode(['read' => ['已读要一个整数']]))
+            ->assertSee(json_encode(['read' => ['已读要一个整数']]), false)
             ->assertDontSee('total');
 
         $this->updateResource('books', 3, ['read' => '10000'])
             ->assertStatus(422)
-            ->assertSee(json_encode(['read' => ['已读不能大于'.$book->total]]))
+            ->assertSee(json_encode(['read' => ['已读不能大于'.$book->total]]), false)
             ->assertDontSee('total');
 
         // 只更新 total
         $this->updateResource('books', 3, ['total' => 'not a numeric'])
             ->assertStatus(422)
-            ->assertSee(json_encode(['total' => ['总页数要一个整数']]))
+            ->assertSee(json_encode(['total' => ['总页数要一个整数']]), false)
             ->assertDontSee('read');
 
         $this->updateResource('books', 3, ['total' => '1'])
             ->assertStatus(422)
-            ->assertSee(json_encode(['total' => ['总页数不能小于'.$book->read]]))
+            ->assertSee(json_encode(['total' => ['总页数不能小于'.$book->read]]), false)
             ->assertDontSee('read');
 
         // read 和 total 同时更新

@@ -19,10 +19,18 @@ class ReadRecordTest extends TestCase
     {
         // sqlite 中不支持 date_format 函数。
         // 临时使用 mysql 连接
-        putenv('DB_CONNECTION=mysql');
-        putenv('DB_DATABASE=notes_test');
+        $_ENV['DB_CONNECTION'] = 'mysql';
+        $_ENV['DB_DATABASE'] = 'notes_test';
 
         parent::refreshApplication();
+    }
+
+    protected function tearDown(): void
+    {
+        $_ENV['DB_CONNECTION'] = 'sqlite';
+        $_ENV['DB_DATABASE'] = ':memory:';
+
+        parent::tearDown();
     }
 
     protected function createBookAndRecord()

@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Models\Book;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Arr;
 
 class BookRequest extends FormRequest
 {
@@ -66,7 +67,7 @@ class BookRequest extends FormRequest
                     $rules['total'] = 'bail|required|integer|between:1,10000|gte:read';
                 }
 
-                $rules = array_only($rules, $this->keys());
+                $rules = Arr::only($rules, $this->keys());
 
                 // 没有更新书籍封面，则 cover 字段是个字符串，且跟数据库的相同
                 if ($this->get('cover') === asset($this->route('book')->cover)) {

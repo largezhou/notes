@@ -8,6 +8,7 @@ use App\Models\Note;
 use App\Models\Tag;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Support\Arr;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -115,7 +116,7 @@ class NoteTest extends TestCase
         $book = Book::find(3);
         // 把笔记的所属页数，设置为书籍已读页多一点，避免与书籍的 read 数相同，之后用来测试标记为读到此页
         $noteData = make(Note::class, ['hidden' => '1', 'page' => $book->read + 5])->toArray();
-        $noteData = array_except($noteData, ['book_id', 'created_at', 'updated_at']);
+        $noteData = Arr::except($noteData, ['book_id', 'created_at', 'updated_at']);
 
         $testData = $noteData;
         $testData['page'] = $book->total + 1;
@@ -137,7 +138,7 @@ class NoteTest extends TestCase
             ->assertStatus(201)
             ->assertJson(['id' => 1]);
 
-        $testData = array_except($noteData, ['created_at', 'updated_at']);
+        $testData = Arr::except($noteData, ['created_at', 'updated_at']);
         $testData['book_id'] = $book->id;
         $this->assertDatabaseHas('notes', $testData);
         $this->assertDatabaseHas('books', [
@@ -207,7 +208,7 @@ class NoteTest extends TestCase
         $tag = make(Tag::class);
         $note->tags()->save($tag);
 
-        $this->forceDestroyResource('notes', 1)->assertStatus(404);
+        $this->forceDestroyResource('notes', 1)->assertStatus(401);
 
         $this->login();
 

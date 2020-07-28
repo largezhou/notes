@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class ReadRecord extends Model
@@ -66,7 +67,7 @@ class ReadRecord extends Model
 
         return [
             'data' => $timeline,
-            'meta' => array_except($paginator->toArray(), 'data'),
+            'meta' => Arr::except($paginator->toArray(), 'data'),
         ];
     }
 }

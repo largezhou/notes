@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Arr;
 
 class PostRequest extends FormRequest
 {
@@ -20,7 +21,7 @@ class PostRequest extends FormRequest
         ];
 
         if ($this->isMethod('put')) {
-            $rules = array_only($rules, $this->keys());
+            $rules = Arr::only($rules, $this->keys());
         }
 
         return $rules;

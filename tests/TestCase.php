@@ -8,7 +8,7 @@ use App\Models\Post;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
-use Illuminate\Foundation\Testing\TestResponse;
+use Illuminate\Testing\TestResponse;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -101,7 +101,7 @@ abstract class TestCase extends BaseTestCase
     {
         $haystack = json_encode(json_decode($haystack, true), JSON_UNESCAPED_UNICODE);
 
-        $this->assertContains($needle, $haystack);
+        $this->assertStringContainsString($needle, $haystack);
     }
 
     /**

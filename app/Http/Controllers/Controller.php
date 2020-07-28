@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Foundation\Validation\ValidatesRequests;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Controller extends BaseController
 {
@@ -60,7 +60,7 @@ class Controller extends BaseController
             $md5 = md5_file($file);
             $ext = $file->getClientOriginalExtension();
 
-            $filename = $md5 . ($ext ? ".{$ext}" : '');
+            $filename = $md5.($ext ? ".{$ext}" : '');
 
             $path = $driver->putFileAs('uploads', $file, $filename);
 
