@@ -16,6 +16,7 @@
         "laravel/framework": "^7.22.4",
         "laravel/tinker": "^2.0",
         "laravel/ui": "^2.1",
+        "qcloud/cos-sdk-v5": "^2.0",
         "spatie/laravel-backup": "^6.11",
         "tymon/jwt-auth": "^1.0"
     },
